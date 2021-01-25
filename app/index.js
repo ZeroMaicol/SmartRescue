@@ -1,7 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 //var mongoose = require('mongoose');
-const dynamoose = require('dynamoose');
+var AWS = require("aws-sdk");
 var favicon = require('serve-favicon');
 var path = require('path');
 var Utenti = require('./src/models/utenteModels');
@@ -56,16 +56,18 @@ mongoose.set('connectTimeoutMS', 30); mongoose .connect(
 
 //DynamoDB
 //AWS
-/*
-const ddb = new dynamoose.aws.sdk.DynamoDB({
 
+
+AWS.config.update({
+  region: "eu-central-1",
+  endpoint: "https://dynamodb.eu-central-1.amazonaws.com"
 });
-*/
+
 //Local
 
 //TODO PUT HERE CONNECTION
 
-dynamoose.aws.ddb.set(ddb);
+var dynamodb = new AWS.DynamoDB();
 
 
 // Routes

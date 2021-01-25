@@ -29,7 +29,7 @@ exports.get_home_data = async (req, res) => {
 	const isLoggedIn = req.isAuthenticated();
 	res.json({
 		isLoggedIn: isLoggedIn,
-		username: isLoggedIn ? req.user._id : ""
+		username: isLoggedIn ? req.user.Account : ""
 		//rankings: data.rankings,
 		//userRankings: data.userRankings
 	});

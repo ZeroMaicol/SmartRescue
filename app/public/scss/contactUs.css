@@ -1,0 +1,174 @@
+.barButton, .pieButton, .homeButton, .ticketButton, .qrButton, .logoutButton, .contactButton {
+  color: white;
+}
+
+.barIcon, .pieIcon, .ticketIcon, .qrIcon, .logoutIcon, .contactIcon, .heatmapIcon {
+  font-size: 36px;
+}
+
+.homeIcon {
+  font-size: 30px;
+}
+
+.navbar {
+  background-color: rgba(0, 7, 70, 0.8);
+}
+.navbar-brand {
+  color: white;
+}
+.navbar-brand:hover {
+  color: black;
+}
+
+.collapser {
+  background-color: rgba(0, 7, 70, 0.8);
+}
+
+.navbar-toggler {
+  color: white;
+}
+
+.list-group {
+  margin-top: 30px;
+}
+
+@media (min-width: 768px) {
+  .mt-0 {
+    font-size: 100%;
+  }
+
+  .mb-0 {
+    font-size: 80%;
+  }
+}
+@media (max-width: 768px) {
+  .mt-0 {
+    font-size: 100%;
+  }
+
+  .mb-0 {
+    font-size: 80%;
+  }
+}
+[v-cloak] {
+  display: none;
+}
+
+.p-4 {
+  font: 10px sans-serif;
+}
+
+.subtitleContact {
+  color: white;
+  font-size: 180%;
+}
+
+.titleCollapseContact {
+  color: white;
+  font-size: 150%;
+}
+
+.inputSearch {
+  width: 150px;
+}
+
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: table;
+  transition: opacity 0.3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.modal-container {
+  width: 300px;
+  margin: 0px auto;
+  padding: 20px 30px;
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  transition: all 0.3s ease;
+  font-family: Helvetica, Arial, sans-serif;
+  text-align: center;
+}
+
+.modal-header h3 {
+  margin-bottom: -10px;
+  margin-top: 0;
+  color: #42b983;
+}
+
+.modal-body {
+  margin: 20px 0;
+}
+
+.modal-body h5 {
+  color: black;
+}
+
+.modal-body img {
+  width: 120px;
+  height: 110px;
+  margin-bottom: 10px;
+}
+
+.congratz {
+  color: #9555af;
+  font-size: 20px;
+}
+
+.modal-default-links {
+  margin-top: -8px;
+  overflow: auto;
+  float: right;
+}
+
+.modal-enter {
+  opacity: 0;
+}
+
+.modal-leave-active {
+  opacity: 0;
+}
+
+.modal-enter .modal-container,
+.modal-leave-active .modal-container {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
+}
+
+.btnModalDelete {
+  /* default for <button>, but useful for <a> */
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  /* create a small space when buttons wrap on 2 lines */
+  margin: 2px 0;
+  /* invisible border (will be colored on hover/focus) */
+  border: solid 1px transparent;
+  border-radius: 4px;
+  /* size comes from text & padding (no width/height) */
+  padding: 0.5em 1em;
+  /* make sure colors have enough contrast! */
+  color: #ffffff;
+  background-color: #9555af;
+}
+
+.buttonContainer {
+  margin-top: 30px;
+}
+
+body {
+  margin-bottom: 30px;
+}
+
+/*# sourceMappingURL=contactUs.css.map */

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <title>SmartRescue - Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <!-- favicons -->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://npmcdn.com/vue-router/dist/vue-router.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/index.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/custom-responsive-style.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/all-plugins.js"></script>
+    <script type="text/javascript" src="/static/js/plugin-active.js"></script>
+</head>
+<body data-spy="scroll" data-target=".main-navigation" data-offset="150">
+    <!-- <transition name="fade"> -->
+    <div id="app">
+        <div class="lds-circle" v-show="!dataReady"><div></div></div>
+        <transition name="fade">
+            <section id="MainContainer" v-cloak v-show="dataReady">
+                <!-- Header starts here -->
+                <header id="Header">
+                    <nav class="main-navigation">
+                        <div class="container clearfix">
+                            <a href="javascript:void(0)" class="menu-trigger hidden-lg-up"><span>&nbsp;</span></a>
+                            <div class="main-menu hidden-md-down">
+                                <ul class="menu-list">
+                                    <li><a class="nav-link" href="javascript:void(0)" data-target="#HeroBanner">Home</a></li>
+                                    <li><a class="nav-link" href="javascript:void(0)" data-target="#Services">How It Works</a></li>
+                                    <li><a class="nav-link" href="javascript:void(0)" data-target="#Portfolio">News</a></li>
+                                    <li v-show="isLoggedIn"><a class="nav-link" href="javascript:void(0)" data-target="#Redeem">Codice Allarme</a></li>
+                                    <li><a class="nav-link" href="javascript:void(0)" data-target="#ContactUs">Contact</a></li>
+                                    <li v-if="isLoggedIn"><a class="nav-link" href="/logout" >Logout</a></li>
+                                    <li v-else><a class="nav-link" href="/login" >Login</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mobile-menu hidden-lg-up">
+                            <ul class="mobile-menu-list">
+                                <li><a class="nav-link" href="javascript:void(0)" data-target="#HeroBanner">Home</a></li>
+                                <li><a class="nav-link" href="javascript:void(0)" data-target="#Services">How It Works</a></li>
+                                <li><a class="nav-link" href="javascript:void(0)" data-target="#Portfolio">News</a></li>
+                                <li v-show="isLoggedIn"><a class="nav-link" href="javascript:void(0)" data-target="#Redeem">Codice Allarme</a></li>
+                                <li><a class="nav-link" href="javascript:void(0)" data-target="#ContactUs">Contact</a></li>
+                                <li v-if="isLoggedIn"><a class="nav-link" href="/logout" >Logout</a></li>
+                                <li v-else><a class="nav-link" href="/login" >Login</a></li>
+                            </ul>
+                        </div>
+                    </nav>
+                </header>
+                <!-- Header ends here -->
+                <!-- Banner starts here -->
+                <section id="HeroBanner">
+                    <div class="hero-content">
+                        <div v-show="isLoggedIn">
+                            <h1>Welcome, {{username}}.</h1>
+                            <a href="/map" class="hero-cta">Mappa</a>
+                            <a href="/device" class="hero-cta">Gestione Device</a>
+                        </div>
+                        <div v-if="!isLoggedIn">
+                            <h1>Smart Rescue</h1>
+                            <a href="/login" class="hero-cta">Login</a>
+                        </div>
+                    </div>
+                </section>
+                <section id="Services">
+                    <div class="container mapContainerIndex">
+                        <div class="w-container">
+                          <div class="section-title-group">
+                            <h2 id="indoor-solutions-heading" class="section-heading centered">
+                              Smart Rescue
+                            </h2>
+                            <p class="title-ingress-text">
+                              Smart Rescuse è un sistema per il supporto alle evacuazioni indoor in situazioni di emergenza.<br/>
+                              Grazi al supporto di AWS, controlla in tempo reale i dispositivi IoT collegati al tuo account e gestisci le situazioni di allarme
+                              in modo semplice e intuitivo.<br/>
+                              Il pacchetto è costituito da:<br/>
+                              - Un controllore Raspeberry Pi per la gestione dell'hardware.<br/>
+                              - Un set di sensori e attuatori collegabili al controllore.<br/>
+                              - Un sito web cloud accedibile da computer o dispositivi mobili per la visualizzazione e gestione dei device IoT<br/>
+                              - Un sistema di gestione delle situazioni d'allarme
+                            </p>
+                          </div>
+                          <div class="home-video-container w-video w-embed">
+                            <iframe class="embedly-embed" src="//cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fwww.youtube.com%2Fembed%2FsxQIJM0CRnY%3Ffeature%3Doembed%26rel%3D0&amp;url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DsxQIJM0CRnY&amp;image=https%3A%2F%2Fi.ytimg.com%2Fvi%2FsxQIJM0CRnY%2Fhqdefault.jpg&amp;key=c4e54deccf4d4ec997a64902e9a30300&amp;type=text%2Fhtml&amp;schema=youtube" scrolling="no" frameborder="0" allowfullscreen="">
+                            </iframe>
+                          </div>
+                        </div>
+                    </div>
+                </section>
+                <section id="Portfolio">
+                    <div class="container">
+                        <div class="block-heading">
+                            <h2>News</h2>
+                            <p>Puoi trovare qui tutte le news del sito!</p>
+                        </div>
+                        <div class="portfolio-wrapper clearfix">
+                            <a class="each-portfolio" data-fancybox="gallery" href="/static/images/closed.png">
+                                <img src="/static/images/closed.png" alt="p-one">
+                                <div class="hover-cont-wrap">
+                                    <div class="hover-cont-block">
+                                        <h5 class="p-title">Closing</h5>
+                                        <div class="p-desc">
+                                            <div>Shop is closing until the 26 of August</div>
+                                            <div class="icon-div"><i class="fa fa-search-plus" aria-hidden="true"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                            <a class="each-portfolio" data-fancybox="gallery" href="/static/images/july.jpg">
+                                <img src="/static/images/july.jpg" alt="p-one">
+                                <div class="hover-cont-wrap">
+                                    <div class="hover-cont-block">
+                                        <h5 class="p-title">July Rankings</h5>
+                                        <div class="p-desc">
+                                            <div>Rankings for the month of July</div>
+                                            <div class="icon-div"><i class="fa fa-search-plus" aria-hidden="true"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                            <a class="each-portfolio" data-fancybox="gallery" href="/static/images/bannerNews.jpg">
+                                <img src="/static/images/bannerNews.jpg" alt="p-one">
+                                <div class="hover-cont-wrap">
+                                    <div class="hover-cont-block">
+                                        <h5 class="p-title">Menu!</h5>
+                                        <div class="p-desc">
+                                            <div>Check our menu and get your discount if you are a student!</div>
+                                            <div class="icon-div"><i class="fa fa-search-plus" aria-hidden="true"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                <!-- Portfolio section ends here -->
+                <section v-show="isLoggedIn" id="Redeem">
+                  <div class="block-heading">
+                      <h2>Inserisci Codice di Allarme</h2>
+                  </div>
+                  <div class="redeemForm text-center">
+                    <label v-cloak for="inputRedeem" v-show="false">Alarm Code</label>
+                    <input @keyup.enter="redeemLife()" id="inputRedeem" class="inputRedeem" placeholder="Alarm Code" v-model="result">
+                  <!--  <button class="buttonRedeem" @click="redeemLife()"><i class="fa fa-arrow-circle-right iconArrow"></i></button>-->
+                  </div>
+                  <div class="text-center">
+                    <a href="javascript:void(0)" class="hero-cta buttonQRModal" @click="showQRModal()" data-toggle="modal" data-target=".bd-qr-modal-sm">Scan QR</a>
+                    <a href="javascript:void(0)" class="hero-cta buttonRedeem" @click="redeemLife()">Invia</a>
+                  </div>
+                  <div id="myModal" v-if="modalQRVisible" class="modal fade bd-qr-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="mySmallModalLabel">Use it to scan a QR</h4>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="hideQRModal()">
+                            <span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <p class="error">{{ errorCamera }}</p>
+                          <p class="decode-result">Last result: <strong>{{ result }}</strong></p>
+                          <div class="text-center" v-if="loading">
+                            <div class="spinner-border" role="status">
+                              <span class="sr-only">Loading...</span>
+                            </div>
+                          </div>
+                          <qrcode-stream @decode="onDecode" @init="onInit"></qrcode-stream>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <modal v-cloak v-if="errorModal" @close="errorModal = false">
+                    <img slot="image" v-show="false" alt="hidden">
+                    <h3 slot="header"><span class="congratz">Attention!</span></h3>
+                    <h5 v-cloak slot="body">{{error}}</h5>
+                  </modal>
+                  <modal v-cloak v-if="successModal" @close="closeModalSuccess()">
+                    <img slot="image" v-show="false" alt="hidden">
+                    <h3 slot="header"><span class="congratz">Congrats!</span></h3>
+                    <h5 v-cloak slot="body">You earned {{successLife}} life!</h5>
+                  </modal>
+                </section>
+                <!-- Contact us section starts here -->
+                <section id="ContactUs">
+                  <modal v-cloak v-if="successMsgModal" @close="successMsgModal = false, error=''">
+                    <img slot="image" v-show="false" alt="hidden">
+                    <h3 slot="header"><span class="congratz">Message Sent!</span></h3>
+                    <h5 v-cloak slot="body">Thanks for your message!</h5>
+                  </modal>
+                  <modal v-cloak v-if="errorMsgModal" @close="errorMsgModal = false, error=''">
+                    <img slot="image" v-show="false" alt="hidden">
+                    <h3 slot="header"><span class="congratz">Attention!</span></h3>
+                    <h5 v-cloak slot="body">{{error}}</h5>
+                  </modal>
+                    <div class="container contact-container">
+                        <h3 class="contact-title">Get In Touch</h3>
+                        <div class="contact-outer-wrapper">
+                            <div class="address-block">
+                                <p class="add-title">Contact Details</p>
+                                <!-- <div class="c-detail">
+                                    <span class="c-icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+                                    <span class="c-info">12 Avenue center, st. marks road, CA</span>
+                                </div>
+                                <div class="c-detail">
+                                    <span class="c-icon"><i class="fa fa-phone" aria-hidden="true"></i></span> <span
+                                        class="c-info">+41982399090000</span>
+                                </div>
+                                <div class="c-detail">
+                                    <span class="c-icon"><i class="fa fa-envelope" aria-hidden="true"></i></span> <span
+                                        class="c-info">click@gmail.com</span>
+                                </div> -->
+                                <div class="c-detail">
+                                        <span class="c-icon"><i class="fa fa-envelope" aria-hidden="true"></i></span> <span class="c-info">maicol.forti@studio.unibo.it</span>
+                                </div>
+                                <div class="c-detail">
+                                    <span class="c-icon"><i class="fa fa-envelope" aria-hidden="true"></i></span> <span class="c-info">christian.serra2@studio.unibo.it</span>
+                                </div>
+                            </div>
+                            <div class="form-wrap">
+                                <p class="add-title">Send Us Message</p>
+                                <form>
+                                    <div class="fname floating-label">
+                                        <input type="text" class="floating-input" name="full name" id="full-name-field" v-model="contactUsData.fullName"/>
+                                        <label for="full-name-field">Full Name</label>
+                                    </div>
+                                    <div class="email floating-label">
+                                        <input type="email" class="floating-input" name="email" id="mail-field" v-model="contactUsData.email"/>
+                                        <label for="mail-field">Email</label>
+                                    </div>
+                                    <div class="contact floating-label">
+                                        <input type="tel" class="floating-input" name="contact" id="contact-us-field" v-model="contactUsData.contact"/>
+                                        <label for="contact-us-field">Contact</label>
+                                    </div>
+                                    <div class="company floating-label">
+                                        <input type="text" class="floating-input" name="company" id="company-field" v-model="contactUsData.company"/>
+                                        <label for="company-field">Company</label>
+                                    </div>
+                                    <div class="user-msg floating-label">
+                                        <textarea class="floating-input" name="user message" id="user-msg-field" v-model="contactUsData.message"></textarea>
+                                        <label for="user-msg-field" class="msg-label">Your Message</label>
+                                    </div>
+                                    <div class="submit-btn">
+                                        <button type="submit" v-on:keyup.enter="contactUs" v-on:click.prevent="contactUs">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Contact us section ends here -->
+                <!-- Footer section starts here -->
+                <footer id="Footer">
+                    <div class="container">
+                        <div class="social-share">
+                            <ul>
+                                <!-- <li><a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                                <li><a href="#"><i class="fa fa-linkedin" aria-hidden="true"></i></a></li>
+                                <li><a href="#"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+                                <li><a href="#"><i class="fa fa-instagram" aria-hidden="true"></i></a></li> -->
+                                <li><a href="https://www.facebook.com/volumecampus/"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                                <!-- <li><a href="#"><i class="fa fa-globe" aria-hidden="true"></i></a></li> -->
+                                <li><a href="https://www.instagram.com/volume_campus/"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                                <li><a href="http://www.aidoru.org/"><i class="fa fa-globe" aria-hidden="true"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-logo-wrap">
+                                By Maicol Forti  and Christian Serra, template from <a href="https://www.position2.com/">Position2</a>
+                        </div>
+                    </div>
+                </footer>
+                <!-- Footer section ends here -->
+            </section>
+        </transition>
+    </div>
+</body>
+
+<!-- Download those from: github.com/gruhn/vue-qrcode-reader/dist -->
+<script src="https://unpkg.com/vue-qrcode-reader@1.3.1/dist/vue-qrcode-reader.browser.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/vue-qrcode-reader@1.3.1/dist/vue-qrcode-reader.css">
+<script>
+
+Vue.component('modal', {
+    template: `
+    <transition name="modal">
+    <div class="modal-mask">
+    <div class="modal-wrapper">
+      <div class="modal-container">
+
+      <div class="modal-header">
+        <slot name="header">
+        default header
+        </slot>
+      </div>
+
+      <div class="modal-body">
+        <slot name="image">
+          default image
+        </slot>
+        <slot name="body">
+        default body
+        </slot>
+      </div>
+      <div class="modal-footer">
+        <slot name="footer">
+        <div class="modal-default-links">
+          <button class="btnModalDelete" @click="$emit('close')">
+          OK
+          </button>
+        </div>
+        </slot>
+      </div>
+      </div>
+    </div>
+    </div>
+  </transition>
+`,
+});
+
+
+
+Vue.use(VueQrcodeReader)
+
+    var app = new Vue({
+        el: "#app",
+        data: {
+            //hscores: { first: 0, second: 0, third: 0 },
+            contactUsData: {
+                fullName: "",
+                email: "",
+                contact: "",
+                company: "",
+                message: ""
+            },
+            //rankings: [],
+            //userRankings: [],
+            //lives: 0,
+            isLoggedIn: false,
+            username: "",
+            dataReady: false,
+            modalQRVisible: false,
+            error: '',
+            result: '',
+            loading: false,
+            errorModal: false,
+            errorCamera: '',
+            successModal: false,
+            //successLife: 0,
+            successMsgModal: false,
+            errorMsgModal: false
+        },
+        methods: {
+            /*startGame: function () {
+                console.log("click on startGame");
+                if (this.lives > 0) {
+                    axios.get("/api/createGameSession")
+                        .then(response => {
+                            window.location.href = response.data
+                                ? ("/hextris/game/" + response.data)
+                                : "#redeem";
+                        })
+                        .catch(error => {
+                            console.log(error);
+                            if (error == 503) {
+                                window.location.href = "/login";
+                            }
+                        });
+                } else {
+                    window.location.href = "#redeem";
+                }
+            },
+            */
+            /*
+            loadHighscoresAndLives: async function () {
+                try {
+                    const response = await axios.get("/api/playedGames");
+                    console.log(response);
+                    this.lives = response.data.lives ? response.data.lives : 0;
+                    const scores = response.data.games;
+                    this.hscores.first = scores[0] ? scores[0].score : 0;
+                    this.hscores.second = scores[1] ? scores[1].score : 0;
+                    this.hscores.third = scores[2] ? scores[2].score : 0;
+                } catch (error) {
+                    console.log(error);
+                }
+            },
+            */
+            onDecode (result) {
+              this.result = result
+              this.ticketChoice = result;
+            },
+            async onInit (promise) {
+              try {
+                this.loading = true;
+                await promise
+              } catch (error) {
+                if (error.name === 'NotAllowedError') {
+                  this.errorCamera = "ERROR: you need to grant camera access permisson"
+                } else if (error.name === 'NotFoundError') {
+                  this.errorCamera = "ERROR: no camera on this device"
+                } else if (error.name === 'NotSupportedError') {
+                  this.errorCamera = "ERROR: secure context required (HTTPS, localhost)"
+                } else if (error.name === 'NotReadableError') {
+                  this.errorCamera = "ERROR: is the camera already in use?"
+                } else if (error.name === 'OverconstrainedError') {
+                  this.errorCamera = "ERROR: installed cameras are not suitable"
+                } else if (error.name === 'StreamApiNotSupportedError') {
+                  this.errorCamera = "ERROR: Stream API is not supported in this browser or SSL error"
+                }
+              } finally {
+                this.loading = false;
+              }
+            },
+            showQRModal: function() {
+              this.modalQRVisible = true;
+            },
+            hideQRModal: function() {
+              this.modalQRVisible = false;
+            },
+            closeModalSuccess: function() {
+              this.successModal = false;
+              this.successLife = 0;
+              this.result = '';
+            },
+            redeemLife: function() {
+              axios.delete("/api/admin/qr/"+this.result)
+                .then(response => {
+                    this.successLife = response.data.life;
+                    this.successModal = true;
+                    this.lives = this.lives + response.data.life;
+                }).catch(error => {
+                  this.error = error;
+                  if (this.error == "Error: Request failed with status code 404") {
+                    this.error = "Error: this code was not found!"
+                  }
+                  this.errorModal = true
+                });
+            },
+            contactUs: async function () {
+                axios.post("/api/contactUs", this.contactUsData)
+                    .then(response => {
+						this.error = '';
+                        if (response.data.errors && response.data.errors.length > 0) {
+                            for (i = 0; i<response.data.errors.length; i++){
+                              this.error += "["+response.data.errors[i].msg+"]";
+                              this.error += "\n";
+                            }
+                            this.errorMsgModal = true;
+                        } else {
+                            this.error = '';
+                            this.successMsgModal = true;
+                            this.contactUsData = {
+                                fullName: "",
+                                email: "",
+                                contact: "",
+                                company: "",
+                                message: ""
+                            };
+                        }
+                    }).catch(error => {
+                        this.error = error;
+                        this.errorMsgModal = true;
+                    });
+            },
+            loadData: async function () {
+                try {
+                    const response = await axios.get("/api/homeData");
+                    console.log(response);
+                    this.isLoggedIn = response.data.isLoggedIn;
+                    this.username = response.data.username;
+                    //this.rankings = response.data.rankings;
+                    //this.rankings.sort((a,b) => b.count - a.count);
+                    //this.userRankings = response.data.userRankings;
+                    //this.userRankings.sort((a,b) => b.points - a.points);
+                    //this.userRankings.length = 3;
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        },
+        async mounted() {
+            try {
+                await this.loadData();
+            /*    if (this.isLoggedIn) {
+                    await this.loadHighscoresAndLives();
+                }
+            */
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setTimeout(() => this.dataReady = true, 1500);
+            }
+        }
+    });
+</script>
+
+</html>

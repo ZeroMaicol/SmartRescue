@@ -1,0 +1,318 @@
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  width: 100%;
+}
+
+#app {
+  margin: auto;
+}
+
+body {
+  display: flex;
+  background: url(../images/banner.jpg) no-repeat 0 0/cover;
+}
+
+.container {
+  margin: auto;
+  color: #fff;
+  font-family: Comfortaa, Helvetica, sans-serif;
+}
+
+.login {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 30px;
+  border-radius: 5px;
+  box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  background: linear-gradient(180deg, #f07aad 0%, #7cb6fb 100%);
+}
+.login-icon-field {
+  height: auto;
+  width: 100%;
+  padding: 50px 20px 0px;
+}
+.login-icon {
+  margin: 50px 65px;
+}
+.login-form, .login .rad {
+  padding: 8px 20px 20px;
+  height: 100%;
+  width: 100%;
+}
+
+.username-row, .email-row, .corsi-row {
+  position: relative;
+  height: 40px;
+  border-bottom: 1px solid;
+  margin-bottom: 10px;
+}
+
+.password-row {
+  position: relative;
+  height: 40px;
+  border-bottom: 1px solid;
+}
+
+.password-icon,
+.user-icon, .mail-icon,
+.corsi-icon {
+  margin: 5px;
+}
+
+.password-icon .key-path,
+.user-icon .user-path,
+.mail-icon .mail-path,
+.corsi-icon .corsi-path {
+  fill: rgba(10, 10, 10, 0);
+  stroke: #fff;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-miterlimit: 10;
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  -webkit-animation: dash 1s 0.3s linear forwards;
+  animation: dash 1s 0.3s linear forwards;
+}
+
+input, .corsi {
+  position: absolute;
+  width: 195px;
+  height: 30px;
+  margin: 5px 0;
+  background: transparent;
+  border: none;
+  color: white;
+  font-family: Comfortaa, Helvetica, sans-serif;
+}
+
+option {
+  background-color: rgba(3, 42, 106, 0.8);
+}
+
+input:focus, .buttonLog:focus {
+  outline: none;
+}
+
+input::-webkit-input-placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+input::-moz-placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.call-to-action {
+  margin: 22px 0;
+}
+
+.buttonLog {
+  all: initial;
+}
+.buttonLog * {
+  all: unset;
+}
+
+.buttonLog {
+  font-family: Comfortaa, Helvetica, sans-serif;
+  text-align: center;
+  display: block;
+  width: 240px;
+  height: 40px;
+  padding: 0;
+  font-weight: 700;
+  color: #fff;
+  background-color: #d44444;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  transition: background-color 0.1s ease-in-out;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  /*Con SCSS puoi usare &hover ecc.*/
+}
+.buttonLog:hover {
+  background-color: #ff0000;
+}
+.buttonLog:active {
+  background-color: #a10000;
+}
+
+@-webkit-keyframes dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+/*CHOICE LOG IN OR SIGN UP*/
+.rad {
+  font-size: 20px;
+  padding-bottom: 5px;
+  margin: auto;
+  display: inline-block;
+  text-align: center;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-1, .tab-2 {
+  padding: 5px;
+  border-radius: 3px;
+  margin: 0px 5px 0px;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+}
+.tab-1:hover, .tab-2:hover {
+  transition: 0.5s ease-in-out;
+  box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  background-color: #ff0000;
+}
+
+.active-tab {
+  transition: background-color 0.25s ease-in-out;
+  box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  background-color: #d44444;
+}
+
+.non-active-tab {
+  transition: background-color 0.25s ease-in-out;
+}
+
+path {
+  stroke-width: 20px;
+  stroke: white;
+}
+
+.clickableSpan {
+  -webkit-cursor: pointer;
+  cursor: pointer;
+  width: 90px;
+}
+
+.loginLogo {
+  display: block;
+  margin: auto;
+  background-size: 80em 80em;
+}
+
+[v-cloak] {
+  display: none;
+}
+
+.lds-circle {
+  position: fixed;
+  z-index: 999;
+  height: 2em;
+  width: 2em;
+  overflow: visible;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 20px;
+  display: inline-block;
+  transform: translateZ(1px);
+}
+.lds-circle > div {
+  display: inline-block;
+  width: 51px;
+  height: 51px;
+  margin: 0px;
+  border-radius: 50%;
+  background: #cef;
+  animation: lds-circle 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+@keyframes lds-circle {
+  0%, 100% {
+    animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
+  }
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(1800deg);
+    animation-timing-function: cubic-bezier(0, 0.5, 0.5, 1);
+  }
+  100% {
+    transform: rotateY(3600deg);
+  }
+}
+.fadein-enter-active, .fadein-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fadein-enter, .fadein-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition-property: opacity, height;
+  transition: all 0.5s ease-in-out;
+  overflow: hidden;
+}
+
+.fade-enter, .fade-leave-to {
+  height: 0;
+  opacity: 0;
+}
+
+*:not(.lds-circle, .lds-circle div) {
+  will-change: height;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.animated {
+  transition: all 0.75s ease;
+  display: flex;
+  width: 100%;
+}
+
+.messages {
+  text-align: center;
+  margin: auto;
+}
+.messages li {
+  display: list-item;
+  margin: 0px;
+  font-size: small;
+}
+
+.forgotPass {
+  color: white;
+  font-size: small;
+  margin-left: 55px;
+}
+.forgotPass:hover {
+  color: blue;
+}
+
+.spacing {
+  height: 15px;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/*# sourceMappingURL=login.css.map */

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+
+  <title>QR Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/css/reset.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="/static/css/ticket.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="/static/js/qrcode.min.js"></script>
+</head>
+
+<body class="bodyAdmin">
+<div id="app">
+  <div class="collapse collapser" id="navbarToggleExternalContent">
+    <div class="p-4">
+      <p class="subtitleTicketsQR">In this page there are the available QR to redeem life, create a new one by pressing the floating button</p>
+      <p class="titleCollapseAdmin">Use the icons below to navigate: </p>
+      <a href="/admin/contactUs" class="btn btn-default contactButton"><i class="fa fa-envelope contactIcon"></i></a>
+      <a href="/admin/pie" class="btn btn-default pieButton"><i class="fa fa-pie-chart pieIcon"></i></a>
+      <a href="/heatmap" class="btn btn-default barButton"><i class="fa fa-calendar heatmapIcon"></i></a>
+      <a href="/admin/userTickets" class="btn btn-default ticketButton"><i class="fa fa-th-list ticketIcon"></i></a>
+    </div>
+  </div>
+  <nav class="navbar">
+    <a class="navbar-brand" href="/admin/userTickets">QR List</a>
+    <button class="navbar-toggler order-4 ml-auto" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fa fa-reorder"></i>
+    </button>
+  </nav>
+  <div v-cloak v-if="dataReady">
+    <div class='container' id ='ticketList'>
+      <div class='row'>
+    	   <div class='col-md-6' v-for="qr in qrList">
+    			   <div class='media' id="media">
+    					<img class='align-self-center mr-3 imageClass' data-toggle="modal" data-target=".bd-example-modal-sm" src="/static/images/life.png" v-bind:alt=qr.life @click="showAlert(qr)">
+                <span class="lifeOnImage">  {{qr.life}} </span>
+              <div class='media-body'>
+    					       <h5 class='mt-0'>
+    						             QR
+    						     </h5>
+    					       <p class="mb-0">
+                        Life: {{qr.life}}
+                     </p>
+                     <div class ='media-bottom mt-2 mb-2'>
+                        <button type="button" class="btn btn-outline-primary btn-sm align-self-center" data-toggle="modal" data-target=".bd-example-modal-sm" @click="showAlert(qr)">Get QR</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm align-self-center" data-toggle="modal" data-target=".bd-code-modal-sm" @click="showCode(qr)">Show Code</button>
+                    </div>
+    					</div>
+    				</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center" v-if="!dataReady">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+
+  <div class="modal fade bd-code-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabelCode" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="mySmallModalLabelCode">Codice del ticket</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>{{codeModal}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalQR" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="mySmallModalQR">QR code to redeem life</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="qrcode"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="myModal" v-if="modalVisible" class="modal fade bd-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="mySmallModalLabel">Create a new QR</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="hideModal()">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p v-cloak> {{errors}} </p>
+          <p v-cloak> {{message}} </p>
+          <span> Number of lives: </span>
+          <label v-cloak for="numberLife" v-show="false">Number Life</label>
+          <input id="numberLife" type="number" name="quantity" min="1" max="5" v-model="lifeNumber">
+          <button type="button" @click="createQR()">
+              Create QR
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="float" data-toggle="modal" data-target=".bd-modal-sm" @click="showModal()">
+    <i class="fa fa-qrcode my-float"></i>
+  </button>
+</div>
+</body>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://npmcdn.com/vue-router/dist/vue-router.js"></script>
+
+<!-- Download those from: github.com/gruhn/vue-qrcode-reader/dist -->
+<script src="https://unpkg.com/vue-qrcode-reader@1.3.1/dist/vue-qrcode-reader.browser.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/vue-qrcode-reader@1.3.1/dist/vue-qrcode-reader.css">
+<script>
+
+var qrs = {
+  life : ''
+};
+
+var qrList = {
+  _id : '',
+  life : ''
+}
+
+
+var app = new Vue({
+	el:	"#app",
+	data:	{
+		qrs: qrs,
+    dataReady: false,
+    modalVisible: false,
+    loading: false,
+    lifeNumber: '',
+    qrCode: [],
+    qrList: qrList,
+    message: '',
+    errors: '',
+    codeModal: ''
+	},
+	methods: {
+    onDecode (result) {
+      this.result = result
+      this.ticketChoice = result;
+    },
+
+    async onInit (promise) {
+      try {
+        console.log("INIT");
+        this.loading = true;
+        await promise
+      } catch (error) {
+        if (error.name === 'NotAllowedError') {
+          this.error = "ERROR: you need to grant camera access permisson"
+        } else if (error.name === 'NotFoundError') {
+          this.error = "ERROR: no camera on this device"
+        } else if (error.name === 'NotSupportedError') {
+          this.error = "ERROR: secure context required (HTTPS, localhost)"
+        } else if (error.name === 'NotReadableError') {
+          this.error = "ERROR: is the camera already in use?"
+        } else if (error.name === 'OverconstrainedError') {
+          this.error = "ERROR: installed cameras are not suitable"
+        } else if (error.name === 'StreamApiNotSupportedError') {
+          this.error = "ERROR: Stream API is not supported in this browser or SSL error"
+        }
+      } finally {
+        this.loading = false;
+      }
+    },
+    showCode: function(item){
+      this.codeModal = this.chunk(item._id,10).join("\n");
+    },
+    chunk: function(str, n) {
+      var ret = [];
+      var i;
+      var len;
+      for(i = 0, len = str.length; i < len; i += n) {
+         ret.push(str.substr(i, n))
+      }
+      return ret
+    },
+    showModal: function() {
+      this.modalVisible = true;
+    },
+    hideModal: function() {
+      this.modalVisible = false;
+    },
+    showAlert: function(qr){
+      document.getElementById("qrcode").innerHTML = "";
+      new QRCode(document.getElementById("qrcode"), qr._id);
+    },
+    createQR: function(){
+      this.message = '';
+      this.errors = '';
+      this.qrs.life = this.lifeNumber;
+      axios.post("/api/admin/qr", this.qrs)
+        .then(response => {
+          if (response.data.errors && response.data.errors.length > 0) {
+            this.errors = response.data.errors.map(({msg}) => msg);
+          } else {
+            this.message = response.data.msg;
+            this.qrList.push(response.data.qr);
+          }
+        })
+        .catch(err => this.errors = [err])
+    },
+		listQr: function(){
+			axios.get("/api/admin/qr")
+				.then(response => {this.qrList = response.data; this.dataReady = true}) //Promise
+				.catch(error => (console.log(error))) //Gestione errori approssimativa
+		},
+    submitTicket: function() {
+      if (this.ticketChoice != '') {
+          this.deleteTicket();
+      } else {
+        alert("Please enter a code!");
+      }
+    },
+		init: function(){
+			this.listQr();
+		}
+	},
+	mounted(){
+		this.init();
+	}
+});
+
+</script>
+
+</html>

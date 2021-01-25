@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+
+  <title>Device</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="static/css/reset.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="static/css/device.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</head>
+
+<body>
+<div id="app">
+  <nav class="navbar">
+     <a class="navbar-brand" href="/device">Device</a>
+     <a href="/" class="btn btn-default homeButton"><i class="fa fa-home homeIcon"></i></a>
+    <label v-cloak for="inputSearchID" v-show="false">Input Search</label>
+    <input class="form-control order-2 inputSearch ml-auto" id="inputSearchID" placeholder="Search" v-model="search">
+    <button class="btn buttonSearch order-3" id="buttonSearchID" @click="listDevice()"><i class="fa fa-search searchIcon"></i></button>
+  </nav>
+  <div v-cloak v-if="dataReady">
+    <div class='container' id ='deviceList'>
+      <div class='row'>
+    	   <div class='col-md-6' v-for="item in devices">
+    			   <div class='media'>
+    					  <img class='align-self-center mr-3 imageClass' v-bind:src=item.idTipoDevice.image v-bind:alt=item.idTipoDevice.type data-toggle="modal" data-target=".bd-example-modal-sm" @click="loadQR(item)">
+                          <!-- Small modal -->
+                          <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-sm">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h4 class="modal-title" id="mySmallModalLabel">Qr code??</h4>
+                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="listDevice()">
+                                    <span aria-hidden="true">×</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                  <div id="qrcode"></div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+    					<div class='media-body'>
+    					       <h5 class='mt-0'>
+    						             {{item.idTipoDevice.type}}
+    						     </h5>
+                     <p class="mb-0">{{item.idTipoDevice.description}}</p>
+                     <div class ='media-bottom mt-2 mb-2'>
+                        <button type="button" class="btn btn-outline-primary btn-sm align-self-center" data-toggle="modal" data-target=".bd-example-modal-sm" @click="loadQR(item)">Show QR</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm align-self-center" data-toggle="modal" data-target=".bd-code-modal-sm" @click="showCode(item)">Show Code</button>
+                    </div>
+              </div>
+    				</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade bd-code-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabelCode" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="mySmallModalLabelCode">Codice del device</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>{{codeModal}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center" v-if="!dataReady">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+
+</div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://npmcdn.com/vue-router/dist/vue-router.js"></script>
+<script>
+
+var devices = {
+  _id:'',
+  idTipoDevice: {
+    type:'',
+    description:'',
+    image:''
+  }
+};
+
+var app = new Vue({
+	el:	"#app",
+	data:	{
+		devices: devices,
+    dataReady: false,
+    search: '',
+    codeModal: ''
+	},
+	methods: {
+    loadQR: function(item){
+        document.getElementById("qrcode").innerHTML = "";
+        new QRCode(document.getElementById("qrcode"), item._id);
+    },
+    showCode: function(item){
+      this.codeModal = item._id;
+    },
+    filterDevice: function(value){
+      return value.idTipoDevice.type.toLowerCase().includes(this.search.toLowerCase()) || value.idTipoDevice.description.includes(this.search);
+    },
+		listDevice: function(){
+      this.devices = [
+        {_id:'temp', idTipoDevice: {type: 'sensor', description: 'temperature sensor', image:''}},
+        {_id:'led', idTipoDevice: {type: 'actuator', description: 'led', image:''}}
+      ];
+      if (this.search != '') {
+        this.devices = this.devices.filter(this.filterDevice);
+      }
+      this.dataReady = true;
+		},
+    setEnterKey: function() {
+      document.getElementById("inputSearchID").addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          // Trigger the button element with a click
+          document.getElementById("buttonSearchID").click();
+        }
+      });
+    },
+		init: function(){
+      this.setEnterKey();
+			this.listDevice();
+		}
+	},
+	mounted(){
+		this.init();
+	}
+});
+</script>
+
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "asw_cafeteria",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.831.0",
+    "d3": "^5.9.7",
+    "dynamoose": "^2.5.0",
+    "express": "^4.16.4",
+    "express-session": "^1.16.2",
+    "express-validator": "^6.1.1",
+    "mongoose": "^5.5.7",
+    "node": "^12.6.0",
+    "nodemailer": "^6.3.0",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "serve-favicon": "^2.5.0",
+    "vue-plugin-load-script": "^1.3.2",
+    "vue-qrcode-reader": "^2.0.2",
+    "vue-select": "^3.1.0"
+  }
+}

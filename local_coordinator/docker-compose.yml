@@ -1,0 +1,45 @@
+version: "3.9"
+services:
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    expose:
+      - "1883"
+      - "9001"
+    volumes:
+      - ./mosquitto:/mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    networks:
+      - default
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: koenkk/zigbee2mqtt
+    volumes:
+      - ./zigbee2mqtt/data:/app/data
+      - ./zigbee-herdsman-converters:/app/node_modules/zigbee-herdsman-converters
+    devices:
+      # CC251
+      - /dev/ttyACM0
+    restart: always
+    networks:
+      - default
+    depends_on:
+      - mosquitto
+  aws_app:
+    build: ./aws_app
+    ports:
+      - "8883:8883"
+    environment:
+      FLASK_ENV: development
+    networks:
+      - default
+    depends_on:
+      - mosquitto
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.18.1.0/24

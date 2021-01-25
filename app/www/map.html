@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <title>Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="static/css/reset.css">
+  <link rel="stylesheet" href="static/css/map.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/custom-responsive-style.css">
+  <link rel="stylesheet" href="https://api.mazemap.com/js/v2.0.41/mazemap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://npmcdn.com/vue-router/dist/vue-router.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/index.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/custom-responsive-style.css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="/static/js/all-plugins.js"></script>
+  <script type="text/javascript" src="/static/js/plugin-active.js"></script>
+  <script type='text/javascript' src='https://api.mazemap.com/js/v2.0.41/mazemap.min.js'></script>
+
+
+</head>
+
+<body>
+<div id="app">
+<div id="main" class="container">
+  <div class='mazemap' id ='map'  tabindex="0" aria-label="Map"></div>
+  <modal v-cloak v-if="modalVisible" @close="modalVisible = false">
+    <img slot="image" v-show="false" alt="hidden">
+    <h3 slot="header"><span class="congratz">Stai visualizzando il sensore {{modalData.message}}</span></h3>
+    <h5 v-cloak slot="body">Temperatura: {{valueTest}}</h5>
+  </modal>
+</div>
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://npmcdn.com/vue-router/dist/vue-router.js"></script>
+<script>
+
+Vue.component('modal', {
+    template: `
+    <transition name="modal">
+    <div class="modal-mask">
+    <div class="modal-wrapper">
+      <div class="modal-container">
+
+      <div class="modal-header">
+        <slot name="header">
+        default header
+        </slot>
+      </div>
+
+      <div class="modal-body">
+        <slot name="image">
+          default image
+        </slot>
+        <slot name="body">
+        default body
+        </slot>
+      </div>
+      <div class="modal-footer">
+        <slot name="footer">
+        <div class="modal-default-links">
+          <button class="btnModalDelete" @click="$emit('close')">
+          OK
+          </button>
+        </div>
+        </slot>
+      </div>
+      </div>
+    </div>
+    </div>
+  </transition>
+`,
+});
+
+var app = new Vue({
+	el:	"#app",
+	data:	{
+    dataReady: true,
+    search: '',
+    valueTest: 0,
+    modalVisible: false,
+    modalData: {
+        currentValue: "",
+        message: ""
+    },
+    mazeMarkerList: []
+	},
+	methods: {
+    showModal: function(value, message) {
+      this.modalData.currentValue = value;
+      this.modalData.message = message;
+      this.modalVisible = true;
+    },
+    hideModal: function() {
+      this.modalVisible = false;
+      this.modalData.currentValue = "";
+      this.modalData.messsage = "";
+    },
+    inc: function() {
+      setInterval(function(){
+        this.valueTest = this.valueTest + 1;
+      }.bind(this), 3000);
+    },
+    makeMarkers: function(myMap) {
+      var mazeMarker;
+
+      var lngLat = {lng: -78.4985754560354, lat: 38.03100233465469};
+
+      for (i = 0; i<5; i++) {
+        lngLat = {lng: lngLat.lng + i, lat: lngLat.lat};
+
+        mazeMarker = new Mazemap.MazeMarker( {
+            color: "MazeBlue",
+            size: 36,
+            zLevel: 1,
+            value: i,
+            innerCircle: true,
+            imgUrl: "https://images.emojiterra.com/openmoji/v12.2/512px/1f4a1.png",
+            imgScale: 1.1,
+            preventClickBubble: false // Allow click to go through to global map layer
+          } ).setLngLat( lngLat ).addTo(myMap);
+
+          this.mazeMarkerList.push(mazeMarker);
+
+          this.mazeMarkerList.forEach(element => {
+            element.on('click', () => {
+              // Can also do extra click handling here...
+              this.modalVisible = true;
+              this.modalData.message = "numero: "+element.options.value;
+            });
+          })
+      }
+    },
+    clearMarkers: function() {
+      this.mazeMarkerList.forEach(marker => {
+        marker.remove();
+      })
+      this.mazeMarkerList = [];
+    },
+    createRoute: function(myMap, start, dest) {
+      var routeController = new Mazemap.RouteController(myMap);
+
+      Mazemap.Data.getRouteJSON(start, dest)
+        .then(function(geojson){
+          routeController.setPath(geojson);
+
+          // Fit the map bounds to the path bounding box
+          var bounds = Mazemap.Util.Turf.bbox(geojson);
+          myMap.fitBounds( bounds, {padding: 100} );
+        });
+    },
+    makeMap: function() {
+      var vm = this;
+
+      var myMap = new Mazemap.Map({
+          container: 'map',
+          campuses: 50,
+          center: {lng: -78.4985453236003, lat: 38.030998758211865},
+          zoom: 19,
+          scrollZoom: true,
+          doubleClickZoom: false,
+          touchZoomRotate: false,
+          zLevelControl: true
+      });
+
+      this.makeMarkers(myMap);
+      var start = { lngLat: {lng: -78.4985754560354, lat: 38.03100233465469}, zLevel : 1};
+      var dest = {lngLat: this.mazeMarkerList[1]._lngLat, zLevel : 1};
+      myMap.on('load', function(){
+        console.log(vm.mazeMarkerList);
+        vm.createRoute(myMap, start, dest);
+      })
+    }
+	},
+	mounted(){
+    this.makeMap();
+    this.inc();
+	}
+});
+</script>
+
+</html>

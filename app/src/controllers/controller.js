@@ -31,18 +31,6 @@ exports.get_home_data = async (req, res) => {
 		isLoggedIn: isLoggedIn,
 		username: isLoggedIn ? req.user.Account : "",
 		thingID: isLoggedIn ? req.user.ThingID : ""
-		//rankings: data.rankings,
-		//userRankings: data.userRankings
-	});
-}
-
-exports.get_thing_data = async (req, res) => {
-	const isLoggedIn = req.isAuthenticated();
-	res.json({
-		isLoggedIn: isLoggedIn,
-		username: isLoggedIn ? req.user.Account : ""
-		//rankings: data.rankings,
-		//userRankings: data.userRankings
 	});
 }
 

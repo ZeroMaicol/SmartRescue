@@ -61,6 +61,7 @@ mongoose.set('connectTimeoutMS', 30); mongoose .connect(
 AWS.config.update({
   region: "eu-central-1",
   endpoint: "https://dynamodb.eu-central-1.amazonaws.com"
+//  endpoint: "http://localhost:8000"
 });
 
 //Local

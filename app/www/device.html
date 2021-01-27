@@ -20,16 +20,23 @@
   <nav class="navbar">
      <a class="navbar-brand" href="/device">Device</a>
      <a href="/" class="btn btn-default homeButton"><i class="fa fa-home homeIcon"></i></a>
+
+    <button class="btn buttonSearch order-2" id="buttonChange" @click="exchange()"><i class="fa fa-exchange exchangeIcon"></i></button>
+
+    <label v-cloak for="inputThingID" v-show="false">Thing ID</label>
+    <input v-cloak v-if="thingInput" class="form-control order-2 inputSearch ml-auto" id="inputThingID" placeholder="Thing ID" v-model="thingID">
+    <button v-cloak v-if="thingInput" class="btn buttonSearch order-3" id="buttonThingID" @click="setThingID()"><i class="fa fa-upload uploadIcon"></i></button>
+
     <label v-cloak for="inputSearchID" v-show="false">Input Search</label>
-    <input class="form-control order-2 inputSearch ml-auto" id="inputSearchID" placeholder="Search" v-model="search">
-    <button class="btn buttonSearch order-3" id="buttonSearchID" @click="listDevice()"><i class="fa fa-search searchIcon"></i></button>
+    <input v-cloak v-if="!thingInput" class="form-control order-2 inputSearch ml-auto" id="inputSearchID" placeholder="Search" v-model="search">
+    <button v-cloak v-if="!thingInput" class="btn buttonSearch order-3" id="buttonSearchID" @click="listDevice()"><i class="fa fa-search searchIcon"></i></button>
   </nav>
   <div v-cloak v-if="dataReady">
     <div class='container' id ='deviceList'>
       <div class='row'>
     	   <div class='col-md-6' v-for="item in devices">
     			   <div class='media'>
-    					  <img class='align-self-center mr-3 imageClass' v-bind:src=item.idTipoDevice.image v-bind:alt=item.idTipoDevice.type data-toggle="modal" data-target=".bd-example-modal-sm" @click="loadQR(item)">
+    					  <img class='align-self-center mr-3 imageClass' v-bind:src=item.idTipoDevice.image v-bind:alt=item.idTipoDevice.type>
                           <!-- Small modal -->
                           <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-sm">
@@ -52,8 +59,7 @@
     						     </h5>
                      <p class="mb-0">{{item.idTipoDevice.description}}</p>
                      <div class ='media-bottom mt-2 mb-2'>
-                        <button type="button" class="btn btn-outline-primary btn-sm align-self-center" data-toggle="modal" data-target=".bd-example-modal-sm" @click="loadQR(item)">Show QR</button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm align-self-center" data-toggle="modal" data-target=".bd-code-modal-sm" @click="showCode(item)">Show Code</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm align-self-center" data-toggle="modal" data-target=".bd-code-modal-sm" @click="showCode(item)">Show Data</button>
                     </div>
               </div>
     				</div>
@@ -66,7 +72,7 @@
     <div class="modal-dialog modal-sm">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" id="mySmallModalLabelCode">Codice del device</h4>
+          <h4 class="modal-title" id="mySmallModalLabelCode">Dati del device</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>
@@ -101,15 +107,44 @@ var devices = {
   }
 };
 
+var accountThing = {
+  account: '',
+  thingID: ''
+};
+
 var app = new Vue({
 	el:	"#app",
 	data:	{
 		devices: devices,
     dataReady: false,
     search: '',
-    codeModal: ''
+    codeModal: '',
+    thingInput: true,
+    thingID: '',
+    errors: '',
+    accountThing: accountThing,
+    username: ''
 	},
 	methods: {
+    exchange: function() {
+      this.thingInput = !this.thingInput;
+    },
+    setThingID: function() {
+      if (this.thingID != ''){
+        this.accountThing.thingID = this.thingID;
+        this.accountThing.account = this.username;
+        axios.post("/api/utentiUpdate", this.accountThing)
+					.then(response => {
+						if (response.data.errors && response.data.errors.length > 0) {
+							this.errors = response.data.errors.map(({msg}) => msg);
+						} else {
+              console.log("Il ThingID è stato aggiornato");
+              this.loadData();
+						}
+					})
+					.catch(err => this.errors = [err])
+      }
+    },
     loadQR: function(item){
         document.getElementById("qrcode").innerHTML = "";
         new QRCode(document.getElementById("qrcode"), item._id);
@@ -130,18 +165,26 @@ var app = new Vue({
       }
       this.dataReady = true;
 		},
-    setEnterKey: function() {
-      document.getElementById("inputSearchID").addEventListener("keyup", function(event) {
-        if (event.keyCode === 13) {
-          // Cancel the default action, if needed
-          event.preventDefault();
-          // Trigger the button element with a click
-          document.getElementById("buttonSearchID").click();
+    loadData: async function () {
+        try {
+            const response = await axios.get("/api/homeData");
+            console.log(response);
+            if (response.data.thingID == '') {
+              this.thingInput = true;
+              console.log("thing ID to be set");
+            } else {
+              this.thingInput = false;
+              this.thingID = response.data.thingID;
+              console.log(this.thingID);
+            }
+            this.username = response.data.username;
+        } catch (error) {
+            console.log(error);
         }
-      });
     },
 		init: function(){
-      this.setEnterKey();
+      //this.setEnterKey();
+      this.loadData();
 			this.listDevice();
 		}
 	},

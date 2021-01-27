@@ -13105,7 +13105,7 @@ ul, li {
 #Redeem {
   height: 300px;
   padding: 80px 0px;
-  background: linear-gradient(180deg, #940000 0%, #e81f1f 50%, #940000 100%);
+  background: url(../images/banner.jpg);
 }
 #Redeem .block-heading h2 {
   color: white;

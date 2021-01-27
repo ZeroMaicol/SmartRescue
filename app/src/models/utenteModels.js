@@ -18,15 +18,14 @@ var UtentiSchema = new Schema({
     type: String,
     required: 'A salt is required'
   },
-  Data: {
-    type: String,
-    default: ''+Date.now
-  },
   Attivo: {
     type: Boolean,
     default: false
   },
-
+  ThingID: {
+    type: String,
+    default: ""
+  }
 }, {
   throughput:{read: 10, write:5}
 });

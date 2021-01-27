@@ -12841,7 +12841,8 @@
         text-shadow: 2px 2px 4px #000000;
       }
     }
-    background: linear-gradient(180deg, rgba(148,0,0,1) 0%, rgba(232,31,31,1) 50%, rgba(148,0,0,1) 100%);
+    //background: linear-gradient(180deg, rgba(148,0,0,1) 0%, rgba(232,31,31,1) 50%, rgba(148,0,0,1) 100%);
+    background: url(../images/banner.jpg);
     .inputRedeem, .buttonQRModal{
       //min-width: 200px;
       margin: 5px;

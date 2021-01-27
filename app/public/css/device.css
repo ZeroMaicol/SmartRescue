@@ -224,8 +224,11 @@
   font-size: 30px;
   color: white;
 }
+.homeIcon:hover {
+  color: black;
+}
 
-.searchIcon {
+.searchIcon, .uploadIcon, .exchangeIcon {
   font-size: 21px;
 }
 

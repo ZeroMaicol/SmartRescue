@@ -229,8 +229,11 @@ background-color: #9555af;
 .homeIcon{
   font-size: 30px;
 	color: white;
+	&:hover{
+		color:black;
+	}
 }
 
-.searchIcon {
+.searchIcon, .uploadIcon, .exchangeIcon {
 	font-size: 21px;
 }

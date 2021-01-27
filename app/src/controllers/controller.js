@@ -29,6 +29,17 @@ exports.get_home_data = async (req, res) => {
 	const isLoggedIn = req.isAuthenticated();
 	res.json({
 		isLoggedIn: isLoggedIn,
+		username: isLoggedIn ? req.user.Account : "",
+		thingID: isLoggedIn ? req.user.ThingID : ""
+		//rankings: data.rankings,
+		//userRankings: data.userRankings
+	});
+}
+
+exports.get_thing_data = async (req, res) => {
+	const isLoggedIn = req.isAuthenticated();
+	res.json({
+		isLoggedIn: isLoggedIn,
 		username: isLoggedIn ? req.user.Account : ""
 		//rankings: data.rankings,
 		//userRankings: data.userRankings
@@ -143,6 +154,19 @@ exports.new_utente = async function(req, res) {
 		res.status(501).json({errors: [error]});
 	}
 };
+
+exports.set_thingID = async function(req, res) {
+	try {
+		await dynamoose.transaction([
+			Utenti.transaction.update({"Account":req.body.account}, {"$SET":{"ThingID":req.body.thingID}})
+		]);
+		console.log("Utente "+req.body.account+" aggiornato con successo con thingID "+req.body.thingID);
+		res.status(201).json({msg: "Update riuscito!"})
+	} catch (error) {
+		console.log(error);
+		res.status(501).json({errors: [error]});
+	}
+}
 
 //sessione
 passport.serializeUser(function(user, cb) {

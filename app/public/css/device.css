@@ -221,11 +221,19 @@
 }
 
 .homeIcon {
-  font-size: 30px;
+  font-size: 20px;
   color: white;
 }
 .homeIcon:hover {
   color: black;
+}
+
+#buttonSearchID, #buttonThingID {
+  margin-left: -45px;
+  margin-top: 0.4px;
+  color: black;
+  border: 0;
+  -webkit-appearance: none;
 }
 
 .searchIcon, .uploadIcon, .exchangeIcon {

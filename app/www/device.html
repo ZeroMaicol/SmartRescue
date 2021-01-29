@@ -34,51 +34,49 @@
   <div v-cloak v-if="dataReady">
     <div class='container' id ='deviceList'>
       <div class='row'>
-    	   <div class='col-md-6' v-for="item in devices">
+    	   <div class='col-md-6' v-for="shadow in shadowList">
     			   <div class='media'>
-    					  <img class='align-self-center mr-3 imageClass' v-bind:src=item.idTipoDevice.image v-bind:alt=item.idTipoDevice.type>
-                          <!-- Small modal -->
-                          <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-sm">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h4 class="modal-title" id="mySmallModalLabel">Qr code??</h4>
-                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="listDevice()">
-                                    <span aria-hidden="true">×</span>
-                                  </button>
-                                </div>
-                                <div class="modal-body">
-                                  <div id="qrcode"></div>
-                                </div>
+    					  <img class='align-self-center mr-3 imageClass' v-bind:src=shadow.shadowImage v-bind:alt=shadow.shadowName>
+    					       <div class='media-body'>
+    					              <h5 class='mt-0'>
+    						                    {{shadow.shadowName}}
+    						            </h5>
+                            <div class ='media-bottom'>
+                              <div v-for="attribute in shadow.reported">
+                                <p class="mb-0">
+                                  {{attribute.position}}
+                                </p>
+                            </div>
+                              <div class ='media-bottom mt-2 mb-2'>
+                                <button type="button" class="btn btn-outline-secondary btn-sm align-self-center" data-toggle="modal" data-target=".bd-code-modal-sm" @click="showCode(shadow)">Show Data</button>
                               </div>
                             </div>
-                          </div>
-    					<div class='media-body'>
-    					       <h5 class='mt-0'>
-    						             {{item.idTipoDevice.type}}
-    						     </h5>
-                     <p class="mb-0">{{item.idTipoDevice.description}}</p>
-                     <div class ='media-bottom mt-2 mb-2'>
-                        <button type="button" class="btn btn-outline-secondary btn-sm align-self-center" data-toggle="modal" data-target=".bd-code-modal-sm" @click="showCode(item)">Show Data</button>
-                    </div>
-              </div>
     				</div>
         </div>
       </div>
     </div>
+  </div>
   </div>
 
   <div class="modal fade bd-code-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabelCode" aria-hidden="true">
     <div class="modal-dialog modal-sm">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" id="mySmallModalLabelCode">Dati del device</h4>
+          <h4 class="modal-title" id="mySmallModalLabelCode">Dati di {{currentShadow.shadowName}}</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>
         </div>
         <div class="modal-body">
-          <p>{{codeModal}}</p>
+          <div class='media-body'>
+            <h5 class='mt-0'>
+              Name: {{currentShadow.shadowName}}
+            </h5>
+            <p class="mb-0">
+              Position: {{currentShadow.reported.position}}
+            </p>
+          </div>
+          <p></p>
         </div>
       </div>
     </div>
@@ -107,9 +105,25 @@ var devices = {
   }
 };
 
+var shadowList = {
+  shadowName: '',
+  shadowImage: '',
+  reported: {
+    position: ''
+  }
+};
+
 var accountThing = {
   account: '',
   thingID: ''
+};
+
+var currentShadow = {
+  shadowName: '',
+  shadowImage: '',
+  reported: {
+    position: ''
+  }
 };
 
 var app = new Vue({
@@ -118,12 +132,17 @@ var app = new Vue({
 		devices: devices,
     dataReady: false,
     search: '',
-    codeModal: '',
+    currentShadow: currentShadow,
     thingInput: true,
     thingID: '',
     errors: '',
     accountThing: accountThing,
-    username: ''
+    username: '',
+    nextToken: 'next',
+    pageSize: 10,
+    shadowListName: [],
+    endpoing: '',
+    shadowList: shadowList
 	},
 	methods: {
     exchange: function() {
@@ -145,12 +164,8 @@ var app = new Vue({
 					.catch(err => this.errors = [err])
       }
     },
-    loadQR: function(item){
-        document.getElementById("qrcode").innerHTML = "";
-        new QRCode(document.getElementById("qrcode"), item._id);
-    },
-    showCode: function(item){
-      this.codeModal = item._id;
+    showCode: function(shadow){
+      this.currentShadow = shadow;
     },
     filterDevice: function(value){
       return value.idTipoDevice.type.toLowerCase().includes(this.search.toLowerCase()) || value.idTipoDevice.description.includes(this.search);
@@ -163,7 +178,6 @@ var app = new Vue({
       if (this.search != '') {
         this.devices = this.devices.filter(this.filterDevice);
       }
-      this.dataReady = true;
 		},
     loadData: async function () {
         try {
@@ -176,11 +190,45 @@ var app = new Vue({
               this.thingInput = false;
               this.thingID = response.data.thingID;
               console.log(this.thingID);
+              this.getShadowList();
             }
             this.username = response.data.username;
         } catch (error) {
             console.log(error);
         }
+    },
+    getShadowList: async function () {
+      try{
+        const response = await axios.get("https://"+this.endpoint+"/api/things/shadow/ListNamedShadowsForThing/"+this.thingID+"?nextToken="+this.nextToken+"&pageSize="+this.pageSize);
+        this.shadowListName = response.results;
+        console.log("List Shadow: "+this.shadowListName);
+        this.getDataFromShadows();
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    getDataFromShadows: async function() {
+      try {
+        this.shadowListName.forEach(shadow => {
+          getDataFromShadow(shadow);
+        });
+        this.dataReady = true;
+        console.log("Ready!");
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    getDataFromShadow: async function(shadow) {
+      try{
+        const response = await axios.get("https://"+this.endpoint+"/things/thingName/shadow?name="+shadowName);
+        this.shadowList += {
+          shadowName: response.shadowName,
+          shadowImage: 'pepe',
+          reported: response.state.reported
+        };
+      } catch (error) {
+        console.log(error);
+      }
     },
 		init: function(){
       //this.setEnterKey();

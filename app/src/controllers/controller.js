@@ -6,6 +6,7 @@ var Utenti = dynamoose.model("Utenti");
 //var Qr = mongoose.model("Qr");
 //var nodemailer = require("nodemailer");
 const { validationResult } = require('express-validator');
+var config = require('./config');
 
 var Crypto = require('crypto');
 const passport = require('passport');
@@ -30,7 +31,7 @@ exports.get_home_data = async (req, res) => {
 	res.json({
 		isLoggedIn: isLoggedIn,
 		username: isLoggedIn ? req.user.Account : "",
-		thingID: isLoggedIn ? req.user.ThingID : ""
+		buildingID: isLoggedIn ? config.buildingID : ""
 	});
 }
 

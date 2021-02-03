@@ -1,11 +1,11 @@
 const dynamoose = require('dynamoose');
 var Schema = dynamoose.Schema;
 
-var UtentiSchema = new Schema({
+var DeviceSchema = new Schema({
   Account: {
     type: String,
     hashKey: true
-	},
+  },
   Email: {
     type: String,
     required: 'An email is required'
@@ -26,4 +26,11 @@ var UtentiSchema = new Schema({
   throughput:{read: 10, write:5}
 });
 
-module.exports = dynamoose.model('Utenti', UtentiSchema);
+
+var BuildingSchema = new Schema({
+
+  device: [DeviceSchema]
+
+};
+
+module.exports = dynamoose.model('building', BuildingSchema);

@@ -21,15 +21,15 @@
      <a class="navbar-brand" href="/device">Device</a>
      <a href="/" class="btn btn-default homeButton"><i class="fa fa-home homeIcon"></i></a>
 
-    <button class="btn buttonSearch order-2" id="buttonChange" @click="exchange()"><i class="fa fa-exchange exchangeIcon"></i></button>
+    <!--<button class="btn buttonSearch order-2" id="buttonChange" @click="exchange()"><i class="fa fa-exchange exchangeIcon"></i></button>-->
 
-    <label v-cloak for="inputThingID" v-show="false">Thing ID</label>
+    <!--<label v-cloak for="inputThingID" v-show="false">Thing ID</label>
     <input v-cloak v-if="thingInput" class="form-control order-2 inputSearch ml-auto" id="inputThingID" placeholder="Thing ID" v-model="thingID">
-    <button v-cloak v-if="thingInput" class="btn buttonSearch order-3" id="buttonThingID" @click="setThingID()"><i class="fa fa-upload uploadIcon"></i></button>
+    <button v-cloak v-if="thingInput" class="btn buttonSearch order-3" id="buttonThingID" @click="setThingID()"><i class="fa fa-upload uploadIcon"></i></button>-->
 
-    <label v-cloak for="inputSearchID" v-show="false">Input Search</label>
-    <input v-cloak v-if="!thingInput" class="form-control order-2 inputSearch ml-auto" id="inputSearchID" placeholder="Search" v-model="search">
-    <button v-cloak v-if="!thingInput" class="btn buttonSearch order-3" id="buttonSearchID" @click="listDevice()"><i class="fa fa-search searchIcon"></i></button>
+    <label for="inputSearchID" v-show="false">Input Search</label>
+    <input v-if="!thingInput" class="form-control order-2 inputSearch ml-auto" id="inputSearchID" placeholder="Search" v-model="search">
+    <button v-if="!thingInput" class="btn buttonSearch order-3" id="buttonSearchID" @click="listDevice()"><i class="fa fa-search searchIcon"></i></button>
   </nav>
   <div v-cloak v-if="dataReady">
     <div class='container' id ='deviceList'>
@@ -113,10 +113,12 @@ var shadowList = {
   }
 };
 
+/*
 var accountThing = {
   account: '',
   thingID: ''
 };
+*/
 
 var currentShadow = {
   shadowName: '',
@@ -136,16 +138,16 @@ var app = new Vue({
     thingInput: true,
     thingID: '',
     errors: '',
-    accountThing: accountThing,
     username: '',
     nextToken: 'next',
     pageSize: 10,
     shadowListName: [],
-    endpoing: '',
-    shadowList: shadowList
+    endpoint: '',
+    shadowList: shadowList,
+    buildingID: ''
 	},
 	methods: {
-    exchange: function() {
+    /*exchange: function() {
       this.thingInput = !this.thingInput;
     },
     setThingID: function() {
@@ -163,7 +165,7 @@ var app = new Vue({
 					})
 					.catch(err => this.errors = [err])
       }
-    },
+    },*/
     showCode: function(shadow){
       this.currentShadow = shadow;
     },
@@ -183,16 +185,9 @@ var app = new Vue({
         try {
             const response = await axios.get("/api/homeData");
             console.log(response);
-            if (response.data.thingID == '') {
-              this.thingInput = true;
-              console.log("thing ID to be set");
-            } else {
-              this.thingInput = false;
-              this.thingID = response.data.thingID;
-              console.log(this.thingID);
-              this.getShadowList();
-            }
+            //this.getShadowList();
             this.username = response.data.username;
+            this.buildingID = response.data.buildingID;
         } catch (error) {
             console.log(error);
         }
@@ -218,22 +213,24 @@ var app = new Vue({
         console.log(error);
       }
     },
-    getDataFromShadow: async function(shadow) {
+    getDataFromShadow: async function(thingID, shadowName) {
       try{
-        const response = await axios.get("https://"+this.endpoint+"/things/thingName/shadow?name="+shadowName);
+        const response = await axios.get("https://"+this.endpoint+"/things/"+thingID+"/shadow?name="+shadowName);
         this.shadowList += {
           shadowName: response.shadowName,
           shadowImage: 'pepe',
           reported: response.state.reported
         };
+        console.log(response);
       } catch (error) {
         console.log(error);
       }
     },
 		init: function(){
       //this.setEnterKey();
-      this.loadData();
-			this.listDevice();
+      //this.loadData();
+			//this.listDevice();
+      this.getDataFromShadow("");
 		}
 	},
 	mounted(){

@@ -12,18 +12,21 @@ module.exports = function(app) {
 	//app.post("/api/sendForgotEmail", validator.request_reset_email, controller.send_forgot_email);
 	app.get("/api/homeData", controller.get_home_data);
 
-	app.post("/api/contactUs", validator.api_contact_us, controller.contact_us);
-	app.get("/api/contactUs", isAdminLoggedIn, controller.get_contact_us);
-	app.get("/admin/contactUs", isAdminLoggedIn, controller.show_contact_us);
+	//app.post("/api/contactUs", validator.api_contact_us, controller.contact_us);
+//	app.get("/api/contactUs", isAdminLoggedIn, controller.get_contact_us);
+	//app.get("/admin/contactUs", isAdminLoggedIn, controller.show_contact_us);
 
 	app.get('/api/log', controller.who_logged);
 
-	app.route('/api/utenti')
+/*	app.route('/api/utenti')
 		.get(isAdminLoggedIn, controller.list_utenti)
 		.post(validator.new_user, controller.new_utente);
 
 	app.route('/api/utentiUpdate')
 			.post(controller.set_thingID); //Validator?
+*/
+	app.route('/api/things')
+		.get(isLoggedIn, controller.list_things);
 
 /*	app.route('/api/tickets')
 		.get(isAdminLoggedIn, controller.list_tickets);

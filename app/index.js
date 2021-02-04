@@ -5,6 +5,7 @@ var AWS = require("aws-sdk");
 var favicon = require('serve-favicon');
 var path = require('path');
 var Utenti = require('./src/models/utenteModels');
+var Buildings = require('./src/models/buildingModels');
 //var UserMessages = require('./src/models/userMessageModels');
 //var EmailVerifications = require('./src/models/emailVerificationModels');
 //var Qr = require('./src/models/qrModels');

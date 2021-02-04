@@ -1,5 +1,5 @@
 var config = {};
 
-config.buildingID = "building_01";
+config.buildingID = "building_1";
 
 module.exports = config;

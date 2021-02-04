@@ -29,24 +29,24 @@
 
     <label for="inputSearchID" v-show="false">Input Search</label>
     <input v-if="!thingInput" class="form-control order-2 inputSearch ml-auto" id="inputSearchID" placeholder="Search" v-model="search">
-    <button v-if="!thingInput" class="btn buttonSearch order-3" id="buttonSearchID" @click="listDevice()"><i class="fa fa-search searchIcon"></i></button>
+    <button v-if="!thingInput" class="btn buttonSearch order-3" id="buttonSearchID" @click="loadData()"><i class="fa fa-search searchIcon"></i></button>
   </nav>
   <div v-cloak v-if="dataReady">
-    <div class='container' id ='deviceList'>
+    <div class='container' id ='deviceList' v-for="device in devices">
       <div class='row'>
-    	   <div class='col-md-6' v-for="shadow in shadowList">
+    	   <div class='col-md-6' v-for="shadow in device.shadowList">
     			   <div class='media'>
     					  <img class='align-self-center mr-3 imageClass' v-bind:src=shadow.shadowImage v-bind:alt=shadow.shadowName>
     					       <div class='media-body'>
     					              <h5 class='mt-0'>
-    						                    {{shadow.shadowName}}
+    						                    Device: {{device.id}} <br/>Shadow: {{shadow.shadowName}}
     						            </h5>
                             <div class ='media-bottom'>
-                              <div v-for="attribute in shadow.reported">
-                                <p class="mb-0">
-                                  {{attribute.position}}
-                                </p>
-                            </div>
+                              Description: {{shadow.shadowDescription}}<br/>
+                              Position: {{shadow.shadowPosition}}
+                              <div style="height:120px;width:120px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
+                                  {{shadow.reported}}
+                              </div>
                               <div class ='media-bottom mt-2 mb-2'>
                                 <button type="button" class="btn btn-outline-secondary btn-sm align-self-center" data-toggle="modal" data-target=".bd-code-modal-sm" @click="showCode(shadow)">Show Data</button>
                               </div>
@@ -96,29 +96,19 @@
 <script src="https://npmcdn.com/vue-router/dist/vue-router.js"></script>
 <script>
 
-var devices = {
-  _id:'',
-  idTipoDevice: {
-    type:'',
-    description:'',
-    image:''
-  }
-};
 
-var shadowList = {
+var shadow = {
   shadowName: '',
   shadowImage: '',
-  reported: {
-    position: ''
-  }
+  shadowDescription: '',
+  shadowPosition: '',
+  reported: ''
 };
 
-/*
-var accountThing = {
-  account: '',
-  thingID: ''
+var devices = {
+  id:'',
+  shadowList: [shadow]
 };
-*/
 
 var currentShadow = {
   shadowName: '',
@@ -131,7 +121,7 @@ var currentShadow = {
 var app = new Vue({
 	el:	"#app",
 	data:	{
-		devices: devices,
+		devices: [devices],
     dataReady: false,
     search: '',
     currentShadow: currentShadow,
@@ -143,7 +133,7 @@ var app = new Vue({
     pageSize: 10,
     shadowListName: [],
     endpoint: '',
-    shadowList: shadowList,
+    shadow: shadow,
     buildingID: ''
 	},
 	methods: {
@@ -172,25 +162,46 @@ var app = new Vue({
     filterDevice: function(value){
       return value.idTipoDevice.type.toLowerCase().includes(this.search.toLowerCase()) || value.idTipoDevice.description.includes(this.search);
     },
-		listDevice: function(){
-      this.devices = [
-        {_id:'temp', idTipoDevice: {type: 'sensor', description: 'temperature sensor', image:''}},
-        {_id:'led', idTipoDevice: {type: 'actuator', description: 'led', image:''}}
-      ];
-      if (this.search != '') {
-        this.devices = this.devices.filter(this.filterDevice);
-      }
-		},
     loadData: async function () {
         try {
             const response = await axios.get("/api/homeData");
-            console.log(response);
+            const things = await axios.get("/api/things");
+            this.parseThingsToListShadow(things.data);
             //this.getShadowList();
             this.username = response.data.username;
             this.buildingID = response.data.buildingID;
+            if (this.search != '') {
+              this.devices = this.devices.filter(this.filterDevice);
+            }
+            this.dataReady = true;
         } catch (error) {
             console.log(error);
         }
+    },
+    parseThingsToListShadow(things) {
+      this.devices = [];
+      //For sui Thing
+      for (var thing in things) {
+        var shadowList = [];
+        //For sui devices
+        for (var device in things[thing]) {
+          //For sulle shadow
+          for (var shadow in things[thing][device]) {
+            var value = things[thing][device][shadow];
+            console.log(value);
+            this.shadow = {
+              shadowName: value.friendly_name,
+              shadowImage: 'https://i.pinimg.com/564x/5a/ae/98/5aae98aed227905660fc7813d3bec159.jpg',
+              shadowDescription: value.description,
+              shadowPosition: 'TODO',
+              reported: 'TODO'
+            }
+            shadowList.push(this.shadow);
+          }
+        }
+        this.devices.push({id: thing, shadowList: shadowList });
+        console.log(this.devices[0]);
+      }
     },
     getShadowList: async function () {
       try{
@@ -228,9 +239,9 @@ var app = new Vue({
     },
 		init: function(){
       //this.setEnterKey();
-      //this.loadData();
+      this.loadData();
 			//this.listDevice();
-      this.getDataFromShadow("");
+      //this.getDataFromShadow("");
 		}
 	},
 	mounted(){

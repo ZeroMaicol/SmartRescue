@@ -1,6 +1,7 @@
 //var mongoose = require('mongoose');
 var dynamoose = require('dynamoose');
 var Utenti = dynamoose.model("Utenti");
+var Buildings = dynamoose.model("buildings")
 //var UserMessages = mongoose.model("UserMessages");
 //var EmailVerifications = mongoose.model("EmailVerifications");
 //var Qr = mongoose.model("Qr");
@@ -35,10 +36,12 @@ exports.get_home_data = async (req, res) => {
 	});
 }
 
+
 exports.show_contact_us = function(req, res) {
 	res.sendFile(appRoot + '/www/contactUs.html');
 };
 
+/*
 exports.get_contact_us = function(req, res) {
 	UserMessages.find({}, function(err, messages) {
 		if (err)
@@ -46,6 +49,7 @@ exports.get_contact_us = function(req, res) {
 		res.json(messages);
 	});
 };
+/*
 
 exports.contact_us = async (req, res) => {
 	const errors = validationResult(req);
@@ -74,6 +78,22 @@ exports.contact_us = async (req, res) => {
 	res.json(data);
 };
 
+
+//Esporta gli utenti
+/*
+exports.list_utenti = function(req, res) {
+	Utenti.all({}, function(err, utenti) {
+		if (err)
+			res.send(err);
+		res.json(utenti);
+	});
+};
+*/
+
+exports.show_adminPage = function(req, res) {
+	res.sendFile(appRoot + '/www/map.html');
+};
+
 exports.show_mazemap = function(req, res) {
 	res.sendFile(appRoot + '/www/map.html');
 };
@@ -82,25 +102,22 @@ exports.show_device = function(req, res) {
 	res.sendFile(appRoot + '/www/device.html');
 };
 
-exports.show_adminPage = function(req, res) {
-	res.sendFile(appRoot + '/www/map.html');
-};
-
-
 //Login route
 exports.show_login = function(req, res) {
 	res.sendFile(appRoot + '/www/login.html');
 };
 
-//Esporta gli utenti
-exports.list_utenti = function(req, res) {
-	Utenti.all({}, function(err, utenti) {
-		if (err)
-			res.send(err);
-		res.json(utenti);
-	});
+//Esporta things di un building
+exports.list_things = async function(req, res) {
+	try{
+		const things = await Buildings.query("id").eq(config.buildingID).exec();
+		console.log(things[0]);
+		res.status(201).json(things[0].things);
+	} catch (error) {
+		console.log(error);
+		res.status(501).json({errors: [error]});
+	}
 };
-
 
 var sha512 = function(password, salt){
 	if (!salt) {

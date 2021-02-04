@@ -28,8 +28,8 @@
     <button v-cloak v-if="thingInput" class="btn buttonSearch order-3" id="buttonThingID" @click="setThingID()"><i class="fa fa-upload uploadIcon"></i></button>-->
 
     <label for="inputSearchID" v-show="false">Input Search</label>
-    <input v-if="!thingInput" class="form-control order-2 inputSearch ml-auto" id="inputSearchID" placeholder="Search" v-model="search">
-    <button v-if="!thingInput" class="btn buttonSearch order-3" id="buttonSearchID" @click="loadData()"><i class="fa fa-search searchIcon"></i></button>
+    <input v-if="dataReady" class="form-control order-2 inputSearch ml-auto" id="inputSearchID" placeholder="Search" v-model="search">
+    <button v-if="dataReady" class="btn buttonSearch order-3" id="buttonSearchID" @click="loadData()"><i class="fa fa-search searchIcon"></i></button>
   </nav>
   <div v-cloak v-if="dataReady">
     <div class='container' id ='deviceList' v-for="device in devices">
@@ -44,9 +44,6 @@
                             <div class ='media-bottom'>
                               Description: {{shadow.shadowDescription}}<br/>
                               Position: {{shadow.shadowPosition}}
-                              <div style="height:120px;width:120px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
-                                  {{shadow.reported}}
-                              </div>
                               <div class ='media-bottom mt-2 mb-2'>
                                 <button type="button" class="btn btn-outline-secondary btn-sm align-self-center" data-toggle="modal" data-target=".bd-code-modal-sm" @click="showCode(shadow)">Show Data</button>
                               </div>
@@ -70,11 +67,11 @@
         <div class="modal-body">
           <div class='media-body'>
             <h5 class='mt-0'>
-              Name: {{currentShadow.shadowName}}
+              Reported:
             </h5>
-            <p class="mb-0">
-              Position: {{currentShadow.reported.position}}
-            </p>
+            <div style="height:200px;width:260px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
+                {{currentShadow.reported}}
+            </div>
           </div>
           <p></p>
         </div>
@@ -113,9 +110,9 @@ var devices = {
 var currentShadow = {
   shadowName: '',
   shadowImage: '',
-  reported: {
-    position: ''
-  }
+  shadowDescription: '',
+  shadowPosition: '',
+  reported: ''
 };
 
 var app = new Vue({
@@ -160,7 +157,8 @@ var app = new Vue({
       this.currentShadow = shadow;
     },
     filterDevice: function(value){
-      return value.idTipoDevice.type.toLowerCase().includes(this.search.toLowerCase()) || value.idTipoDevice.description.includes(this.search);
+      console.log(value);
+      return value.id.toLowerCase().includes(this.search.toLowerCase());
     },
     loadData: async function () {
         try {

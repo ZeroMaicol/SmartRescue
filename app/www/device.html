@@ -39,12 +39,12 @@
     					  <img class='align-self-center mr-3 imageClass' v-bind:src=shadow.shadowImage v-bind:alt=shadow.shadowName>
     					       <div class='media-body'>
     					              <h5 class='mt-0'>
-    						                    Device: {{device.id}} <br/>Shadow: {{shadow.shadowName}}
+    						                    <strong>Device</strong>: {{device.id}} <br/><strong>Shadow</strong>: {{shadow.shadowName}}
     						            </h5>
                             <div class ='media-bottom'>
-                              Type: {{shadow.shadowType}}<br/>
-                              Description: {{shadow.shadowDescription}}<br/>
-                              Position: {{shadow.shadowPosition}}
+                              <strong>Type</strong>: {{shadow.shadowType}}<br/>
+                              <strong>Description</strong>: {{shadow.shadowDescription}}<br/>
+                              <strong>Position</strong>: Lat({{shadow.shadowLat}}), Long({{shadow.shadowLong}}), Z-floor({{shadow.shadowZFloor}})
                               <div class ='media-bottom mt-2 mb-2'>
                                 <button type="button" class="btn btn-outline-secondary btn-sm align-self-center" data-toggle="modal" data-target=".bd-code-modal-sm" @click="showCode(shadow)">Show Data</button>
                               </div>
@@ -99,7 +99,9 @@ var shadow = {
   shadowName: '',
   shadowImage: '',
   shadowDescription: '',
-  shadowPosition: '',
+  shadowLat: '',
+  shadowLong: '',
+  shadowZFloor: '',
   shadowType: '',
   reported: ''
 };
@@ -113,6 +115,9 @@ var currentShadow = {
   shadowName: '',
   shadowImage: '',
   shadowDescription: '',
+  shadowLat: '',
+  shadowLong: '',
+  shadowZFloor: '',
   shadowPosition: '',
   shadowType: '',
   reported: ''
@@ -200,7 +205,9 @@ var app = new Vue({
                   shadowType: things[response.data.thingName][device][response.data.shadowName].type,
                   shadowImage: 'https://i.pinimg.com/564x/5a/ae/98/5aae98aed227905660fc7813d3bec159.jpg',
                   shadowDescription: things[response.data.thingName][device][response.data.shadowName].description,
-                  shadowPosition: 'TODO',
+                  shadowLat: things[response.data.thingName][device][response.data.shadowName].lat,
+                  shadowLong: things[response.data.thingName][device][response.data.shadowName].long,
+                  shadowZFloor: 1,//things[response.data.thingName][device][response.data.shadowName].z-floor,
                   reported: json.state.reported
                 };
                 shadowList.push(this.shadow);

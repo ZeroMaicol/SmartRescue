@@ -61,6 +61,7 @@ exports.get_shadow = async function(req, res) {
   		path: '/things/'+req.body.thingName+'/shadow?name='+req.body.shadowName,
   		headers: {
     		'Content-Type': 'application/x-amz-json-1.0',
+    	//	'X-Amz-Target': 'DynamoDB_20120810.ListTables'
   		},
   			body: '{}'
 		}, {

@@ -12,6 +12,72 @@ var config = require('./config');
 var Crypto = require('crypto');
 const passport = require('passport');
 
+
+
+//--------------------------------
+
+
+var https = require('https');
+var aws4 = require('aws4');
+
+
+const RETRY_ERRS = ['EADDRINFO', 'ETIMEDOUT', 'ECONNRESET', 'ESOCKETTIMEDOUT', 'ENOTFOUND', 'EMFILE']
+
+var request = async function request(options) {
+  options.retries = options.retries || 0
+  return new Promise((resolve, reject) => {
+    const onError = err => {
+      if (RETRY_ERRS.includes(err.code) && options.retries < 5) {
+        options.retries++
+        return request(options).then(resolve).catch(reject)
+      }
+      reject(err)
+    }
+    var req = https.request(options, res => {
+      let bufs = []
+      res.on('error', onError)
+      res.on('data', bufs.push.bind(bufs))
+      res.on('end', () => {
+        resolve({
+          statusCode: res.statusCode,
+          headers: res.headers,
+          body: Buffer.concat(bufs).toString('utf8'),
+        })
+      })
+    }).on('error', onError).end(options.body)
+		return {
+			result: req
+		};
+  })
+}
+
+exports.get_shadow = async function(req, res) {
+	try {
+		var result = aws4.sign({
+  		service: 'iotdata',
+			host: '',
+  		region: 'eu-central-1',
+  		method: 'GET',
+  		path: '/things/'+req.body.thingName+'/shadow?name='+req.body.shadowName,
+  		headers: {
+    		'Content-Type': 'application/x-amz-json-1.0',
+  		},
+  			body: '{}'
+		}, {
+			secretAccessKey: "",
+			accessKeyId: ""
+		});
+		const ret = await request(result);
+		console.log(ret.body);
+		res.status(201).json({body: ret.body, shadowName: req.body.shadowName, thingName: req.body.thingName});
+	} catch (error) {
+		console.log(error);
+		res.status(501).json({errors: [error]});
+	}
+}
+
+//--------------------------------
+
 exports.home = (req, res) => {
 	res.sendFile(appRoot + '/www/index.html');
 }

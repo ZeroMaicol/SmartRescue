@@ -25,6 +25,10 @@ module.exports = function(app) {
 	app.route('/api/utentiUpdate')
 			.post(controller.set_thingID); //Validator?
 */
+
+	app.route('/api/getshadow')
+		.post(controller.get_shadow);
+
 	app.route('/api/things')
 		.get(isLoggedIn, controller.list_things);
 

@@ -42,6 +42,7 @@
     						                    Device: {{device.id}} <br/>Shadow: {{shadow.shadowName}}
     						            </h5>
                             <div class ='media-bottom'>
+                              Type: {{shadow.shadowType}}<br/>
                               Description: {{shadow.shadowDescription}}<br/>
                               Position: {{shadow.shadowPosition}}
                               <div class ='media-bottom mt-2 mb-2'>
@@ -99,6 +100,7 @@ var shadow = {
   shadowImage: '',
   shadowDescription: '',
   shadowPosition: '',
+  shadowType: '',
   reported: ''
 };
 
@@ -112,6 +114,7 @@ var currentShadow = {
   shadowImage: '',
   shadowDescription: '',
   shadowPosition: '',
+  shadowType: '',
   reported: ''
 };
 
@@ -129,7 +132,7 @@ var app = new Vue({
     nextToken: 'next',
     pageSize: 10,
     shadowListName: [],
-    endpoint: '',
+    endpoint: 'a2spllhdjdikn.iot.eu-central-1.amazonaws.com',
     shadow: shadow,
     buildingID: ''
 	},
@@ -176,7 +179,7 @@ var app = new Vue({
             console.log(error);
         }
     },
-    parseThingsToListShadow(things) {
+    parseThingsToListShadow: function(things) {
       this.devices = [];
       //For sui Thing
       for (var thing in things) {
@@ -186,53 +189,27 @@ var app = new Vue({
           //For sulle shadow
           for (var shadow in things[thing][device]) {
             var value = things[thing][device][shadow];
-            console.log(value);
-            this.shadow = {
-              shadowName: value.friendly_name,
-              shadowImage: 'https://i.pinimg.com/564x/5a/ae/98/5aae98aed227905660fc7813d3bec159.jpg',
-              shadowDescription: value.description,
-              shadowPosition: 'TODO',
-              reported: 'TODO'
-            }
-            shadowList.push(this.shadow);
+            axios.post("/api/getshadow", {thingName: thing, shadowName: value.friendly_name})
+            .then(response => {
+              if (response.data.errors && response.data.errors.length > 0) {
+                console.log(error);
+              } else {
+                const json = JSON.parse(response.data.body);
+                this.shadow = {
+                  shadowName: response.data.shadowName,
+                  shadowType: things[response.data.thingName][device][response.data.shadowName].type,
+                  shadowImage: 'https://i.pinimg.com/564x/5a/ae/98/5aae98aed227905660fc7813d3bec159.jpg',
+                  shadowDescription: things[response.data.thingName][device][response.data.shadowName].description,
+                  shadowPosition: 'TODO',
+                  reported: json.state.reported
+                };
+                shadowList.push(this.shadow);
+              }
+            }).catch(err => console.log(err))
           }
         }
         this.devices.push({id: thing, shadowList: shadowList });
         console.log(this.devices[0]);
-      }
-    },
-    getShadowList: async function () {
-      try{
-        const response = await axios.get("https://"+this.endpoint+"/api/things/shadow/ListNamedShadowsForThing/"+this.thingID+"?nextToken="+this.nextToken+"&pageSize="+this.pageSize);
-        this.shadowListName = response.results;
-        console.log("List Shadow: "+this.shadowListName);
-        this.getDataFromShadows();
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    getDataFromShadows: async function() {
-      try {
-        this.shadowListName.forEach(shadow => {
-          getDataFromShadow(shadow);
-        });
-        this.dataReady = true;
-        console.log("Ready!");
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    getDataFromShadow: async function(thingID, shadowName) {
-      try{
-        const response = await axios.get("https://"+this.endpoint+"/things/"+thingID+"/shadow?name="+shadowName);
-        this.shadowList += {
-          shadowName: response.shadowName,
-          shadowImage: 'pepe',
-          reported: response.state.reported
-        };
-        console.log(response);
-      } catch (error) {
-        console.log(error);
       }
     },
 		init: function(){

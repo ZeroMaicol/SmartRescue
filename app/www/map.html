@@ -28,9 +28,16 @@
   <div class='mazemap' id ='map'  tabindex="0" aria-label="Map"></div>
   <modal v-cloak v-if="modalVisible" @close="modalVisible = false">
     <img slot="image" v-show="false" alt="hidden">
-    <h3 slot="header"><span class="congratz">Shadow {{modalData.shadowName}} of type {{modalData.shadowType}}</span></h3>
-    <h5 v-cloak slot="body"><strong>Position</strong>: Lat({{modalData.shadowLat}}), Long({{modalData.shadowLong}}), Z-floor({{modalData.shadowZFloor}}) </h5>
-    <h6 v-cloak slot="body"><strong>Reported</strong>: {{modalData.reported}} </h6>
+    <h5 slot="header">
+      <span class="congratz">Thing {{modalData.thingID}}</span>
+      <span class="congratz">Shadow {{modalData.shadowName}} of type {{modalData.shadowType}}</span>
+    </h5>
+    <h6 v-cloak slot="body"><strong>Position</strong>: Lat({{modalData.shadowLat}}), Long({{modalData.shadowLong}}), Z-floor({{modalData.shadowZFloor}}) </h6>
+    <h7 v-cloak slot="body"><strong>Reported</strong>
+      <div style="height:100px;width:200px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
+          {{modalData.reported}}
+      </div>
+    </h7>
   </modal>
 </div>
 
@@ -78,6 +85,7 @@ Vue.component('modal', {
 });
 
 var shadow = {
+  thingID: '',
   shadowName: '',
   shadowImage: '',
   shadowDescription: '',
@@ -109,29 +117,6 @@ var app = new Vue({
       this.modalVisible = false;
       this.modalData.currentValue = "";
       this.modalData.messsage = "";
-    },
-    makeMarker: function(shadow, myMap) {
-      var mazeMarker;
-
-      //var lngLat = {lng: shadow.shadowLong, lat: shadow.shadowLat};
-      var lngLat = {lng: -78.4985453236003, lat: 38.030998758211865};
-        mazeMarker = new Mazemap.MazeMarker( {
-            color: "MazeBlue",
-            size: 36,
-            zLevel: 1,
-            innerCircle: true,
-            imgUrl: "https://images.emojiterra.com/openmoji/v12.2/512px/1f4a1.png",
-            imgScale: 1.1,
-            preventClickBubble: false // Allow click to go through to global map layer
-          } ).setLngLat( lngLat ).addTo(myMap);
-
-          this.mazeMarkerList.push(mazeMarker);
-
-          mazeMarker.on('click', () => {
-            // Can also do extra click handling here...
-            this.modalVisible = true;
-            this.modalData = shadow;
-          });
     },
     clearMarkers: function() {
       this.mazeMarkerList.forEach(marker => {
@@ -197,13 +182,14 @@ var app = new Vue({
               console.log(json);
               if (!json.hasOwnProperty("message")){
                 this.shadow = {
+                  thingID: response.data.thingName,
                   shadowName: response.data.shadowName,
                   shadowType: things[response.data.thingName][device][response.data.shadowName].type,
-                  shadowImage: 'https://i.pinimg.com/564x/5a/ae/98/5aae98aed227905660fc7813d3bec159.jpg',
+                  shadowImage: things[response.data.thingName][device][response.data.shadowName].img_path,
                   shadowDescription: things[response.data.thingName][device][response.data.shadowName].description,
                   shadowLat: things[response.data.thingName][device][response.data.shadowName].lat,
                   shadowLong: things[response.data.thingName][device][response.data.shadowName].long,
-                  shadowZFloor: 1,//things[response.data.thingName][device][response.data.shadowName].z-floor,
+                  shadowZFloor: things[response.data.thingName][device][response.data.shadowName].zFloor,
                   reported: json.state.reported
                 };
                 this.makeMarker(this.shadow, myMap);
@@ -213,6 +199,29 @@ var app = new Vue({
         }
       }
     }
+  },
+  makeMarker: function(shadow, myMap) {
+    var mazeMarker;
+
+      var lngLat = {lng: shadow.shadowLong, lat: shadow.shadowLat};
+      mazeMarker = new Mazemap.MazeMarker( {
+          color: "MazeBlue",
+          size: 36,
+          zLevel: shadow.shadowZFloor,
+          zLevel: 1,
+          innerCircle: true,
+          imgUrl: shadow.shadowImage,
+          imgScale: 1.1,
+          preventClickBubble: false // Allow click to go through to global map layer
+        } ).setLngLat( lngLat ).addTo(myMap);
+
+        this.mazeMarkerList.push({marker: mazeMarker, shadow: shadow});
+
+        mazeMarker.on('click', () => {
+          // Can also do extra click handling here...
+          this.modalVisible = true;
+          this.modalData = shadow;
+        });
   },
   init: function(){
     this.clearMarkers();

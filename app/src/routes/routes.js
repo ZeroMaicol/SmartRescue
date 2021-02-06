@@ -29,6 +29,9 @@ module.exports = function(app) {
 	app.route('/api/getshadow')
 		.post(controller.get_shadow);
 
+	app.route('/api/setCoordinates')
+		.post(controller.set_coordinates);
+
 	app.route('/api/things')
 		.get(isLoggedIn, controller.list_things);
 

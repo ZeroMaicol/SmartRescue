@@ -186,6 +186,20 @@ exports.list_things = async function(req, res) {
 	}
 };
 
+//SET coordinates
+exports.set_coordinates = async function(req, res) {
+	try {
+		/*await dynamoose.transaction([
+			Buildings.transaction.update({"Account":req.body.account}, {"$SET":{"ThingID":req.body.thingID}})
+		]);*/
+		console.log("Building "+config.buildingID+" aggiornato con successo.");
+		res.status(201).json({msg: "Update riuscito!"})
+	} catch (error) {
+		console.log(error);
+		res.status(501).json({errors: [error]});
+	}
+}
+
 var sha512 = function(password, salt){
 	if (!salt) {
 		const length = 32;

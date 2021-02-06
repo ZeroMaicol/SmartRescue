@@ -36,15 +36,13 @@
       <div class='row'>
     	   <div class='col-md-6' v-for="shadow in device.shadowList">
     			   <div class='media'>
-    					  <img class='align-self-center mr-3 imageClass' v-bind:src=shadow.shadowImage v-bind:alt=shadow.shadowName>
+    					  <img v-show=false class='align-self-center mr-3 imageClass' v-bind:src=shadow.shadowImage v-bind:alt=shadow.shadowName>
     					       <div class='media-body'>
     					              <h5 class='mt-0'>
     						                    <strong>Device</strong>: {{device.id}} <br/><strong>Shadow</strong>: {{shadow.shadowName}}
     						            </h5>
                             <div class ='media-bottom'>
-                              <strong>Type</strong>: {{shadow.shadowType}}<br/>
-                              <strong>Description</strong>: {{shadow.shadowDescription}}<br/>
-                              <strong>Position</strong>: Lat({{shadow.shadowLat}}), Long({{shadow.shadowLong}}), Z-floor({{shadow.shadowZFloor}})
+
                               <div class ='media-bottom mt-2 mb-2'>
                                 <button type="button" class="btn btn-outline-secondary btn-sm align-self-center" data-toggle="modal" data-target=".bd-code-modal-sm" @click="showCode(shadow)">Show Data</button>
                               </div>
@@ -67,6 +65,9 @@
         </div>
         <div class="modal-body">
           <div class='media-body'>
+            <strong>Type</strong>: {{currentShadow.shadowType}}<br/>
+            <strong>Description</strong>: {{currentShadow.shadowDescription}}<br/>
+            <strong>Position</strong>: Lat({{currentShadow.shadowLat}}), Long({{currentShadow.shadowLong}}), Z-floor({{currentShadow.shadowZFloor}})
             <h5 class='mt-0'>
               Reported:
             </h5>
@@ -74,6 +75,21 @@
                 {{currentShadow.reported}}
             </div>
           </div>
+          <br/>
+          <!--
+          <form>
+            <label for="fname">Lat:</label><br>
+            <input type="text" id="lat" name="lat" v-model="lat"><br>
+            <label for="lname">Long:</label><br>
+            <input type="text" id="long" name="long" v-model="long"><br>
+            <label for="fname">Z-floor:</label><br>
+            <input type="text" id="zFloor" name="zFloor" v-model="zFloor"><br>
+          </form>
+                      <br/>
+          <button type="button" @click="setLatLong()">
+            <span aria-hidden="true">Set LatLong</span>
+          </button>
+          -->
           <p></p>
         </div>
       </div>
@@ -103,7 +119,8 @@ var shadow = {
   shadowLong: '',
   shadowZFloor: '',
   shadowType: '',
-  reported: ''
+  reported: '',
+  shadowDevice: ''
 };
 
 var devices = {
@@ -118,15 +135,16 @@ var currentShadow = {
   shadowLat: '',
   shadowLong: '',
   shadowZFloor: '',
-  shadowPosition: '',
   shadowType: '',
-  reported: ''
+  reported: '',
+  shadowDevice: ''
 };
 
 var app = new Vue({
 	el:	"#app",
 	data:	{
 		devices: [devices],
+    devicesCurrent: [devices],
     dataReady: false,
     search: '',
     currentShadow: currentShadow,
@@ -139,91 +157,131 @@ var app = new Vue({
     shadowListName: [],
     endpoint: 'a2spllhdjdikn.iot.eu-central-1.amazonaws.com',
     shadow: shadow,
-    buildingID: ''
+    buildingID: '',
+    lat: '',
+    long: '',
+    zFloor: '',
+    counter: 0,
 	},
 	methods: {
-    /*exchange: function() {
-      this.thingInput = !this.thingInput;
-    },
-    setThingID: function() {
-      if (this.thingID != ''){
-        this.accountThing.thingID = this.thingID;
-        this.accountThing.account = this.username;
-        axios.post("/api/utentiUpdate", this.accountThing)
-					.then(response => {
-						if (response.data.errors && response.data.errors.length > 0) {
-							this.errors = response.data.errors.map(({msg}) => msg);
-						} else {
-              console.log("Il ThingID è stato aggiornato");
-              this.loadData();
-						}
-					})
-					.catch(err => this.errors = [err])
-      }
-    },*/
     showCode: function(shadow){
-      this.currentShadow = shadow;
+      var ok = false;
+      this.devicesCurrent.forEach((item, i) => {
+        item.shadowList.forEach((item, i) => {
+          if (item.shadowName == shadow.shadowName){
+            this.currentShadow = item;
+            ok = true;
+          }
+        });
+      });
+      if (ok == false){
+        this.currentShadow = {
+          shadowName: '',
+          shadowImage: '',
+          shadowDescription: '',
+          shadowLat: '',
+          shadowLong: '',
+          shadowZFloor: '',
+          shadowType: '',
+          reported: '',
+          shadowDevice: ''
+        };
+      }
+    },
+    setLatLong: function() {
+      console.log(this.lat + this.long + this.zFloor);
+      if (this.lat != '' && this.long != '' && this.zFloor != '') {
+        axios.post("/api/setCoordinates", {lat: this.lat, long: this.long, zFloor:this.zFloor})
+        .then(response => {
+          if (response.data.errors && response.data.errors.length > 0) {
+            console.log(error);
+          } else {
+            console.log("Settate nuove coordinate per il device shadow");
+          }
+        }).catch(err => console.log(err))
+      }
     },
     filterDevice: function(value){
       console.log(value);
       return value.id.toLowerCase().includes(this.search.toLowerCase());
     },
     loadData: async function () {
+      this.devices = [];
         try {
             const response = await axios.get("/api/homeData");
-            const things = await axios.get("/api/things");
-            this.parseThingsToListShadow(things.data);
-            //this.getShadowList();
+            var things = await axios.get("/api/things");
+            things = things.data;
+            for (var thing in things) {
+              var shadowList = [];
+              //For sui devices
+              for (var device in things[thing]) {
+                //For sulle shadow
+                for (var shadow in things[thing][device]) {
+                  var value = things[thing][device][shadow];
+
+                  var currentShadow = {
+                    shadowName: value.friendly_name,
+                    shadowImage: '',
+                    shadowDescription: '',
+                    shadowLat: '',
+                    shadowLong: '',
+                    shadowZFloor: '',
+                    shadowType: '',
+                    reported: '',
+                    shadowDevice: device,
+                  };
+                  shadowList.push(currentShadow);
+                }
+              }
+              this.devices.push({id: thing, shadowList: shadowList});
+            }
             this.username = response.data.username;
             this.buildingID = response.data.buildingID;
             if (this.search != '') {
               this.devices = this.devices.filter(this.filterDevice);
             }
-            this.dataReady = true;
+            return things;
         } catch (error) {
             console.log(error);
         }
     },
     parseThingsToListShadow: function(things) {
-      this.devices = [];
-      //For sui Thing
-      for (var thing in things) {
-        var shadowList = [];
-        //For sui devices
-        for (var device in things[thing]) {
-          //For sulle shadow
-          for (var shadow in things[thing][device]) {
-            var value = things[thing][device][shadow];
-            axios.post("/api/getshadow", {thingName: thing, shadowName: value.friendly_name})
-            .then(response => {
-              if (response.data.errors && response.data.errors.length > 0) {
-                console.log(error);
-              } else {
-                const json = JSON.parse(response.data.body);
-                this.shadow = {
-                  shadowName: response.data.shadowName,
-                  shadowType: things[response.data.thingName][device][response.data.shadowName].type,
-                  shadowImage: 'https://i.pinimg.com/564x/5a/ae/98/5aae98aed227905660fc7813d3bec159.jpg',
-                  shadowDescription: things[response.data.thingName][device][response.data.shadowName].description,
-                  shadowLat: things[response.data.thingName][device][response.data.shadowName].lat,
-                  shadowLong: things[response.data.thingName][device][response.data.shadowName].long,
-                  shadowZFloor: 1,//things[response.data.thingName][device][response.data.shadowName].z-floor,
-                  reported: json.state.reported
-                };
-                shadowList.push(this.shadow);
-              }
-            }).catch(err => console.log(err))
-          }
-        }
-        this.devices.push({id: thing, shadowList: shadowList });
-        console.log(this.devices[0]);
-      }
+      //setInterval(function() {
+        this.devicesCurrent = this.devices.map(x => {
+            console.log(x);
+            var shadowListCurrent = [];
+            for (shadow in x.shadowList) {
+              axios.post("/api/getshadow", {thingName: x.id, shadowName: x.shadowList[shadow].shadowName})
+              .then(response => {
+                if (response.data.errors && response.data.errors.length > 0) {
+                  console.log(error);
+                } else {
+                  const json = JSON.parse(response.data.body);
+                  if (!json.hasOwnProperty('message')) {
+                    var currentShadow = {
+                      shadowName: response.data.shadowName,
+                      shadowType: things[response.data.thingName][x.shadowList[shadow].shadowDevice][response.data.shadowName].type,
+                      shadowImage: things[response.data.thingName][x.shadowList[shadow].shadowDevice][response.data.shadowName].img_path,
+                      shadowDescription: things[response.data.thingName][x.shadowList[shadow].shadowDevice][response.data.shadowName].description,
+                      shadowLat: things[response.data.thingName][x.shadowList[shadow].shadowDevice][response.data.shadowName].lat,
+                      shadowLong: things[response.data.thingName][x.shadowList[shadow].shadowDevice][response.data.shadowName].long,
+                      shadowZFloor: things[response.data.thingName][x.shadowList[shadow].shadowDevice][response.data.shadowName].zFloor,
+                      reported: json.state.reported,
+                      shadowDevice: x.shadowList[shadow].shadowDevice
+                    };
+                    shadowListCurrent.push(currentShadow);
+                  }
+                }
+              }).catch(err => console.log(err))
+            }
+            return {id: x.id, shadowList: shadowListCurrent};
+          });
+          this.dataReady = true;
+     //}.bind(this), 1000);
     },
-		init: function(){
-      //this.setEnterKey();
-      this.loadData();
-			//this.listDevice();
-      //this.getDataFromShadow("");
+		init: async function(){
+      const things = await this.loadData();
+      this.parseThingsToListShadow(things);
 		}
 	},
 	mounted(){

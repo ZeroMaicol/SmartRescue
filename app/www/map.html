@@ -26,16 +26,20 @@
 <div id="app">
 <div id="main" class="container">
   <div class='mazemap' id ='map'  tabindex="0" aria-label="Map"></div>
-  <modal v-cloak v-if="modalVisible" @close="modalVisible = false">
-    <img slot="image" v-show="false" alt="hidden">
+  <modal v-cloak v-if="modalVisible" @close="hideModal()">
     <h5 slot="header">
-      <span class="congratz">Thing {{modalData.thingID}}</span>
-      <span class="congratz">Shadow {{modalData.shadowName}} of type {{modalData.shadowType}}</span>
+      <span class="congratz">Thing {{currentShadow.shadowThing}}</span>
+      <span class="congratz">Shadow {{currentShadow.shadowName}}</span>
     </h5>
-    <h6 v-cloak slot="body"><strong>Position</strong>: Lat({{modalData.shadowLat}}), Long({{modalData.shadowLong}}), Z-floor({{modalData.shadowZFloor}}) </h6>
+
+    <h6 v-cloak slot="body">
+      <strong>Type</strong>:{{currentShadow.shadowType}}<br/>
+      <strong>Description</strong> {{currentShadow.shadowDescription}} <br/>
+      <strong>Position</strong>: Lat({{currentShadow.shadowLat}}), Long({{currentShadow.shadowLong}}), Z-floor({{currentShadow.shadowZFloor}})
+    </h6>
     <h7 v-cloak slot="body"><strong>Reported</strong>
       <div style="height:100px;width:200px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
-          {{modalData.reported}}
+          {{currentShadow.reported}}
       </div>
     </h7>
   </modal>
@@ -61,9 +65,6 @@ Vue.component('modal', {
       </div>
 
       <div class="modal-body">
-        <slot name="image">
-          default image
-        </slot>
         <slot name="body">
         default body
         </slot>
@@ -72,7 +73,7 @@ Vue.component('modal', {
         <slot name="footer">
         <div class="modal-default-links">
           <button class="btnModalDelete" @click="$emit('close')">
-          OK
+          Close
           </button>
         </div>
         </slot>
@@ -85,7 +86,6 @@ Vue.component('modal', {
 });
 
 var shadow = {
-  thingID: '',
   shadowName: '',
   shadowImage: '',
   shadowDescription: '',
@@ -93,7 +93,21 @@ var shadow = {
   shadowLong: '',
   shadowZFloor: '',
   shadowType: '',
-  reported: ''
+  reported: '',
+  shadowDevice: ''
+};
+
+var currentShadow = {
+  shadowName: '',
+  shadowImage: '',
+  shadowDescription: '',
+  shadowLat: '',
+  shadowLong: '',
+  shadowZFloor: '',
+  shadowType: '',
+  reported: '',
+  shadowDevice: '',
+  shadowThing: ''
 };
 
 var app = new Vue({
@@ -101,22 +115,25 @@ var app = new Vue({
 	data:	{
     dataReady: true,
     search: '',
+    currentShadowList: [currentShadow],
     valueTest: 0,
     modalVisible: false,
-    modalData: '',
     shadow: shadow,
-    mazeMarkerList: []
+    mazeMarkerList: [],
+    currentShadow: currentShadow,
+    counter: 0,
+    interval: '',
+    things: ''
 	},
 	methods: {
-    showModal: function(value, message) {
-      this.modalData.currentValue = value;
-      this.modalData.message = message;
-      this.modalVisible = true;
-    },
     hideModal: function() {
+      clearInterval(this.interval);
       this.modalVisible = false;
-      this.modalData.currentValue = "";
-      this.modalData.messsage = "";
+      this.currentShadow = "";
+    },
+    showModal: function(shadow) {
+        this.parseThingsToListShadow(shadow);
+        this.modalVisible = true;
     },
     clearMarkers: function() {
       this.mazeMarkerList.forEach(marker => {
@@ -142,8 +159,8 @@ var app = new Vue({
       var myMap = new Mazemap.Map({
           container: 'map',
           campuses: 50,
-          center: {lng: -78.4985453236003, lat: 38.030998758211865},
-          zoom: 19,
+          center: {lng: 78.4985754560354, lat: 38.03100233465469},
+          zoom: 30,
           scrollZoom: true,
           doubleClickZoom: false,
           touchZoomRotate: false,
@@ -157,42 +174,42 @@ var app = new Vue({
 	},
   loadData: async function (myMap) {
     try {
-        const things = await axios.get("/api/things");
-        this.parseThingsToListShadow(things.data, myMap);
+        this.things = await axios.get("/api/things");
+        this.things = this.things.data;
+        this.parseThingsToListShadowSetup(myMap);
     } catch (error) {
         console.log(error);
     }
   },
-  parseThingsToListShadow: function(things, myMap) {
-    this.devices = [];
+  parseThingsToListShadowSetup: function(myMap){
     //For sui Thing
-    for (var thing in things) {
+    for (var thing in this.things) {
       var shadowList = [];
       //For sui devices
-      for (var device in things[thing]) {
+      for (var device in this.things[thing]) {
         //For sulle shadow
-        for (var shadow in things[thing][device]) {
-          var value = things[thing][device][shadow];
+        for (var shadow in this.things[thing][device]) {
+          var value = this.things[thing][device][shadow];
           axios.post("/api/getshadow", {thingName: thing, shadowName: value.friendly_name})
           .then(response => {
             if (response.data.errors && response.data.errors.length > 0) {
               console.log(error);
             } else {
               const json = JSON.parse(response.data.body);
-              console.log(json);
               if (!json.hasOwnProperty("message")){
-                this.shadow = {
-                  thingID: response.data.thingName,
+                var markerShadow = {
+                  shadowThing: thing,
                   shadowName: response.data.shadowName,
-                  shadowType: things[response.data.thingName][device][response.data.shadowName].type,
-                  shadowImage: things[response.data.thingName][device][response.data.shadowName].img_path,
-                  shadowDescription: things[response.data.thingName][device][response.data.shadowName].description,
-                  shadowLat: things[response.data.thingName][device][response.data.shadowName].lat,
-                  shadowLong: things[response.data.thingName][device][response.data.shadowName].long,
-                  shadowZFloor: things[response.data.thingName][device][response.data.shadowName].zFloor,
-                  reported: json.state.reported
+                  shadowType: this.things[response.data.thingName][device][response.data.shadowName].type,
+                  shadowImage: this.things[response.data.thingName][device][response.data.shadowName].img_path,
+                  shadowDescription: this.things[response.data.thingName][device][response.data.shadowName].description,
+                  shadowLat: this.things[response.data.thingName][device][response.data.shadowName].lat,
+                  shadowLong: this.things[response.data.thingName][device][response.data.shadowName].long,
+                  shadowZFloor: this.things[response.data.thingName][device][response.data.shadowName].zFloor,
+                  reported: json.state.reported,
+                  shadowDevice: device
                 };
-                this.makeMarker(this.shadow, myMap);
+                this.makeMarker(markerShadow, myMap);
               }
             }
           }).catch(err => console.log(err))
@@ -200,11 +217,40 @@ var app = new Vue({
       }
     }
   },
+  parseThingsToListShadow: function(shadow) {
+    this.interval = setInterval(function() {
+      this.counter += 1;
+      //For sui Thing
+            axios.post("/api/getshadow", {thingName: shadow.shadowThing, shadowName: shadow.shadowName})
+            .then(response => {
+              if (response.data.errors && response.data.errors.length > 0) {
+                console.log(error);
+              } else {
+                const json = JSON.parse(response.data.body);
+                if (!json.hasOwnProperty("message")){
+                  this.currentShadow = {
+                    shadowName: response.data.shadowName,
+                    shadowType: this.things[shadow.shadowThing][shadow.shadowDevice][shadow.shadowName].type,
+                    shadowImage: this.things[shadow.shadowThing][shadow.shadowDevice][shadow.shadowName].img_path,
+                    shadowDescription: this.things[shadow.shadowThing][shadow.shadowDevice][shadow.shadowName].description,
+                    shadowLat: this.things[shadow.shadowThing][shadow.shadowDevice][shadow.shadowName].lat,
+                    shadowLong: this.things[shadow.shadowThing][shadow.shadowDevice][shadow.shadowName].long,
+                    shadowZFloor: this.things[shadow.shadowThing][shadow.shadowDevice][shadow.shadowName].zFloor,
+                    reported: json.state.reported,
+                    shadowDevice: shadow.shadowDevice,
+                    shadowThing: shadow.shadowThing
+                  };
+                }
+              }
+            }).catch(err => console.log(err))
+          }.bind(this), 1000);
+  },
   makeMarker: function(shadow, myMap) {
-    var mazeMarker;
 
+      console.log(shadow);
       var lngLat = {lng: shadow.shadowLong, lat: shadow.shadowLat};
-      mazeMarker = new Mazemap.MazeMarker( {
+
+      var mazeMarker = new Mazemap.MazeMarker( {
           color: "MazeBlue",
           size: 36,
           zLevel: shadow.shadowZFloor,
@@ -215,12 +261,12 @@ var app = new Vue({
           preventClickBubble: false // Allow click to go through to global map layer
         } ).setLngLat( lngLat ).addTo(myMap);
 
-        this.mazeMarkerList.push({marker: mazeMarker, shadow: shadow});
+        this.mazeMarkerList.push(mazeMarker);
+
 
         mazeMarker.on('click', () => {
           // Can also do extra click handling here...
-          this.modalVisible = true;
-          this.modalData = shadow;
+          this.showModal(shadow);
         });
   },
   init: function(){

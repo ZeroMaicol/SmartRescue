@@ -55,8 +55,8 @@ exports.get_shadow = async function(req, res) {
 	try {
 		var result = aws4.sign({
   		service: 'iotdata',
-			host: '',
-  		region: 'eu-central-1',
+			host: config.host,
+  		region: config.region,
   		method: 'GET',
   		path: '/things/'+req.body.thingName+'/shadow?name='+req.body.shadowName,
   		headers: {
@@ -65,8 +65,8 @@ exports.get_shadow = async function(req, res) {
   		},
   			body: '{}'
 		}, {
-			secretAccessKey: "",
-			accessKeyId: ""
+			secretAccessKey: config.secretAccessKey,
+			accessKeyId: config.accessKeyId
 		});
 		const ret = await request(result);
 		console.log(ret.body);

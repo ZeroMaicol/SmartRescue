@@ -36,13 +36,17 @@
       <div class='row'>
     	   <div class='col-md-6' v-for="shadow in device.shadowList">
     			   <div class='media'>
-    					  <img v-show=false class='align-self-center mr-3 imageClass' v-bind:src=shadow.shadowImage v-bind:alt=shadow.shadowName>
+    					  <img v-show=true class='align-self-center mr-3 imageClass' v-bind:src=shadow.shadowImage v-bind:alt=shadow.shadowName>
     					       <div class='media-body'>
     					              <h5 class='mt-0'>
     						                    <strong>Device</strong>: {{device.id}} <br/><strong>Shadow</strong>: {{shadow.shadowName}}
     						            </h5>
                             <div class ='media-bottom'>
-
+                              <strong>Type</strong>: {{shadow.shadowType}}<br/>
+                              <strong>Description</strong>: {{shadow.shadowDescription}}<br/>
+                              <strong>Lat</strong>: {{shadow.shadowLat}} <br/>
+                              <strong>Long</strong>: {{shadow.shadowLong}} <br/>
+                              <strong>Z-floor</strong>: {{shadow.shadowZFloor}}
                               <div class ='media-bottom mt-2 mb-2'>
                                 <button type="button" class="btn btn-outline-secondary btn-sm align-self-center" data-toggle="modal" data-target=".bd-code-modal-sm" @click="parseThingsToListShadow(shadow)">Show Data</button>
                               </div>
@@ -201,15 +205,14 @@ var app = new Vue({
                 //For sulle shadow
                 for (var shadow in this.things[thing][device]) {
                   var value = this.things[thing][device][shadow];
-
                   var currentShadow = {
                     shadowName: value.friendly_name,
-                    shadowImage: '',
-                    shadowDescription: '',
-                    shadowLat: '',
-                    shadowLong: '',
-                    shadowZFloor: '',
-                    shadowType: '',
+                    shadowImage:  this.things[thing][device][shadow].img_path,
+                    shadowDescription: this.things[thing][device][shadow].description,
+                    shadowLat: this.things[thing][device][shadow].lat,
+                    shadowLong: this.things[thing][device][shadow].long,
+                    shadowZFloor: this.things[thing][device][shadow].zFloor,
+                    shadowType: this.things[thing][device][shadow].type,
                     reported: '',
                     shadowThing: thing,
                     shadowDevice: device,

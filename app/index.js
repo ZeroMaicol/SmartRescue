@@ -6,6 +6,8 @@ var favicon = require('serve-favicon');
 var path = require('path');
 var Utenti = require('./src/models/utenteModels');
 var Buildings = require('./src/models/buildingModels');
+
+var config = require('./src/controllers/config');
 //var UserMessages = require('./src/models/userMessageModels');
 //var EmailVerifications = require('./src/models/emailVerificationModels');
 //var Qr = require('./src/models/qrModels');
@@ -61,8 +63,10 @@ mongoose.set('connectTimeoutMS', 30); mongoose .connect(
 
 AWS.config.update({
   region: "eu-central-1",
-  endpoint: "https://dynamodb.eu-central-1.amazonaws.com"
-  //endpoint: "http://localhost:8000"
+  endpoint: "https://dynamodb.eu-central-1.amazonaws.com",
+  accessKeyId: config.accessKeyId,
+  secretAccessKey: config.secretAccessKey
+
 });
 
 var dynamodb = new AWS.DynamoDB();

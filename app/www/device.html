@@ -28,7 +28,7 @@
     <button v-cloak v-if="thingInput" class="btn buttonSearch order-3" id="buttonThingID" @click="setThingID()"><i class="fa fa-upload uploadIcon"></i></button>-->
 
     <label for="inputSearchID" v-show="false">Input Search</label>
-    <input v-if="dataReady" class="form-control order-2 inputSearch ml-auto" id="inputSearchID" placeholder="Search" v-model="search">
+    <input v-if="dataReady" class="form-control order-2 inputSearch ml-auto" id="inputSearchID" placeholder="Search Thing" v-model="search">
     <button v-if="dataReady" class="btn buttonSearch order-3" id="buttonSearchID" @click="loadData()"><i class="fa fa-search searchIcon"></i></button>
   </nav>
   <div v-cloak v-if="dataReady">

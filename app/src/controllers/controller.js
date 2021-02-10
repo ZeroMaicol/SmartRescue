@@ -196,18 +196,18 @@ exports.set_alarm = async function(req, res) {
     const building = await Buildings.query("id").eq(config.buildingID).exec();
     console.log("Building = "+building[0].id);
 
-    var hashedCode = sha512(req.body.code, building.sale);
-    if (hashedCode.passwordHash == building.code) {
+    var hashedCode = sha512(req.body.code, building[0].sale);
+    if (hashedCode.passwordHash == building[0].password) {
       var result = aws4.sign({
       	service: 'iotdata',
     		host: config.host,
       	region: config.region,
       	method: 'POST',
-      	path: '/things/'+config.alarmThing+'/shadow?name='+config.alarmShadow,
+      	path: '/things/'+config.alarmThing+'/shadow?name=',
       	headers: {
       		'Content-Type': 'application/x-amz-json-1.0',
       	},
-      		body: '{}'
+      		body: '{"state": {"desired": {"alarm": false}}}'
     	}, {
     		secretAccessKey: config.secretAccessKey,
     		accessKeyId: config.accessKeyId

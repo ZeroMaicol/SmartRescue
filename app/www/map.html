@@ -159,8 +159,8 @@ var app = new Vue({
       var myMap = new Mazemap.Map({
           container: 'map',
           campuses: 50,
-          center: {lng: 78.4985754560354, lat: 38.03100233465469},
-          zoom: 30,
+          center: {lng: -78.4985754560354, lat: 38.03100233465469},
+          zoom: 19,
           scrollZoom: true,
           doubleClickZoom: false,
           touchZoomRotate: false,
@@ -229,13 +229,13 @@ var app = new Vue({
                 const json = JSON.parse(response.data.body);
                 if (!json.hasOwnProperty("message")){
                   this.currentShadow = {
-                    shadowName: response.data.shadowName,
-                    shadowType: this.things[shadow.shadowThing][shadow.shadowDevice][shadow.shadowName].type,
-                    shadowImage: this.things[shadow.shadowThing][shadow.shadowDevice][shadow.shadowName].img_path,
-                    shadowDescription: this.things[shadow.shadowThing][shadow.shadowDevice][shadow.shadowName].description,
-                    shadowLat: this.things[shadow.shadowThing][shadow.shadowDevice][shadow.shadowName].lat,
-                    shadowLong: this.things[shadow.shadowThing][shadow.shadowDevice][shadow.shadowName].long,
-                    shadowZFloor: this.things[shadow.shadowThing][shadow.shadowDevice][shadow.shadowName].zFloor,
+                    shadowName: shadow.shadowName,
+                    shadowType: shadow.shadowType,
+                    shadowImage: shadow.shadowImage,
+                    shadowDescription: shadow.shadowDescription,
+                    shadowLat: shadow.shadowLat,
+                    shadowLong: shadow.shadowLong,
+                    shadowZFloor: shadow.shadowZFloor,
                     reported: json.state.reported,
                     shadowDevice: shadow.shadowDevice,
                     shadowThing: shadow.shadowThing

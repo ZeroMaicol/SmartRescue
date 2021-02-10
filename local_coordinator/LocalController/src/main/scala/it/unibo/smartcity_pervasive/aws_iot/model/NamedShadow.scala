@@ -26,7 +26,7 @@ case class MqttDeviceInfo(friendlyName: String,
                           properties: Map[String,AnyRef],
                           exposes: Map[String,SensorProperty]) {
 
-  def toMap(): Map[String, AnyRef] = Map(
+  def toMap: Map[String, AnyRef] = Map(
     friendlyName -> Map(
       "properties" -> properties,
       "exposes" -> exposes.transform { case(_, p) => JsonUtils.caseClassToMap(p) }

@@ -149,25 +149,25 @@
                   </div>
                   <div class="redeemForm text-center">
                     <label v-cloak for="inputRedeem" v-show="false">Alarm Code</label>
-                    <input @keyup.enter="redeemLife()" id="inputRedeem" class="inputRedeem" placeholder="Alarm Code" v-model="result">
+                    <input @keyup.enter="stopAlarm()" id="inputRedeem" class="inputRedeem" placeholder="Alarm Code" v-model="result">
                   <!--  <button class="buttonRedeem" @click="redeemLife()"><i class="fa fa-arrow-circle-right iconArrow"></i></button>-->
                   </div>
                   <div class="text-center">
                     <a href="javascript:void(0)" class="hero-cta buttonQRModal" @click="showQRModal()" data-toggle="modal" data-target=".bd-qr-modal-sm">Scan QR</a>
-                    <a href="javascript:void(0)" class="hero-cta buttonRedeem" @click="redeemLife()">Invia</a>
+                    <a href="javascript:void(0)" class="hero-cta buttonRedeem" @click="stopAlarm()">Invia</a>
                   </div>
                   <div id="myModal" v-if="modalQRVisible" class="modal fade bd-qr-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-sm">
                       <div class="modal-content">
                         <div class="modal-header">
-                          <h4 class="modal-title" id="mySmallModalLabel">Use it to scan a QR</h4>
+                          <h4 class="modal-title" id="mySmallModalLabel">Scannerizza il QR</h4>
                           <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="hideQRModal()">
                             <span aria-hidden="true">×</span>
                           </button>
                         </div>
                         <div class="modal-body">
                           <p class="error">{{ errorCamera }}</p>
-                          <p class="decode-result">Last result: <strong>{{ result }}</strong></p>
+                          <p class="decode-result">Ultimo risultato: <strong>{{ result }}</strong></p>
                           <div class="text-center" v-if="loading">
                             <div class="spinner-border" role="status">
                               <span class="sr-only">Loading...</span>
@@ -180,13 +180,13 @@
                   </div>
                   <modal v-cloak v-if="errorModal" @close="errorModal = false">
                     <img slot="image" v-show="false" alt="hidden">
-                    <h3 slot="header"><span class="congratz">Attention!</span></h3>
+                    <h3 slot="header"><span class="congratz">Attenzione!</span></h3>
                     <h5 v-cloak slot="body">{{error}}</h5>
                   </modal>
                   <modal v-cloak v-if="successModal" @close="closeModalSuccess()">
                     <img slot="image" v-show="false" alt="hidden">
-                    <h3 slot="header"><span class="congratz">Congrats!</span></h3>
-                    <h5 v-cloak slot="body">You earned {{successLife}} life!</h5>
+                    <h3 slot="header"><span class="congratz">Attenzione!</span></h3>
+                    <h5 v-cloak slot="body">L'allarme è stato fermato!</h5>
                   </modal>
                 </section>
                 <!-- Contact us section starts here -->
@@ -340,9 +340,6 @@ Vue.use(VueQrcodeReader)
                 company: "",
                 message: ""
             },
-            //rankings: [],
-            //userRankings: [],
-            //lives: 0,
             isLoggedIn: false,
             username: "",
             dataReady: false,
@@ -353,46 +350,10 @@ Vue.use(VueQrcodeReader)
             errorModal: false,
             errorCamera: '',
             successModal: false,
-            //successLife: 0,
             successMsgModal: false,
             errorMsgModal: false
         },
         methods: {
-            /*startGame: function () {
-                console.log("click on startGame");
-                if (this.lives > 0) {
-                    axios.get("/api/createGameSession")
-                        .then(response => {
-                            window.location.href = response.data
-                                ? ("/hextris/game/" + response.data)
-                                : "#redeem";
-                        })
-                        .catch(error => {
-                            console.log(error);
-                            if (error == 503) {
-                                window.location.href = "/login";
-                            }
-                        });
-                } else {
-                    window.location.href = "#redeem";
-                }
-            },
-            */
-            /*
-            loadHighscoresAndLives: async function () {
-                try {
-                    const response = await axios.get("/api/playedGames");
-                    console.log(response);
-                    this.lives = response.data.lives ? response.data.lives : 0;
-                    const scores = response.data.games;
-                    this.hscores.first = scores[0] ? scores[0].score : 0;
-                    this.hscores.second = scores[1] ? scores[1].score : 0;
-                    this.hscores.third = scores[2] ? scores[2].score : 0;
-                } catch (error) {
-                    console.log(error);
-                }
-            },
-            */
             onDecode (result) {
               this.result = result
               this.ticketChoice = result;
@@ -427,19 +388,16 @@ Vue.use(VueQrcodeReader)
             },
             closeModalSuccess: function() {
               this.successModal = false;
-              this.successLife = 0;
               this.result = '';
             },
-            redeemLife: function() {
-              axios.delete("/api/admin/qr/"+this.result)
+            stopAlarm: function() {
+              axios.post("/api/alarm", {code: this.result})
                 .then(response => {
-                    this.successLife = response.data.life;
-                    this.successModal = true;
-                    this.lives = this.lives + response.data.life;
+                  this.successModal = true
                 }).catch(error => {
                   this.error = error;
                   if (this.error == "Error: Request failed with status code 404") {
-                    this.error = "Error: this code was not found!"
+                    this.error = "Il codice non è corretto!"
                   }
                   this.errorModal = true
                 });
@@ -473,14 +431,9 @@ Vue.use(VueQrcodeReader)
             loadData: async function () {
                 try {
                     const response = await axios.get("/api/homeData");
-                    console.log(response);
                     this.isLoggedIn = response.data.isLoggedIn;
                     this.username = response.data.username;
-                    //this.rankings = response.data.rankings;
-                    //this.rankings.sort((a,b) => b.count - a.count);
-                    //this.userRankings = response.data.userRankings;
-                    //this.userRankings.sort((a,b) => b.points - a.points);
-                    //this.userRankings.length = 3;
+                    console.log(response);
                 } catch (error) {
                     console.log(error);
                 }
@@ -489,14 +442,10 @@ Vue.use(VueQrcodeReader)
         async mounted() {
             try {
                 await this.loadData();
-            /*    if (this.isLoggedIn) {
-                    await this.loadHighscoresAndLives();
-                }
-            */
             } catch (error) {
                 console.log(error);
             } finally {
-                setTimeout(() => this.dataReady = true, 1500);
+              setTimeout(() => this.dataReady = true, 1500);
             }
         }
     });

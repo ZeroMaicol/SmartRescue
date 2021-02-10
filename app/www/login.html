@@ -21,11 +21,12 @@ Inspirations:
 
 <body>
 	<div id="app">
-		<transition name="fadein" mode="out-in">
-		<div key="1" class="lds-circle" v-if="!dataReady">
+
+		<div class="lds-circle" v-show="!dataReady">
 			<div></div>
 		</div>
-			<div key="2" class="container" v-cloak v-if="dataReady">
+		<transition name="fadein" mode="out-in">
+			<div class="container" v-cloak v-if="dataReady">
 				<div class="login" id="login">
 					<div class="login-icon-field">
 

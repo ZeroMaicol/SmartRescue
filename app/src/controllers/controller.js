@@ -61,7 +61,6 @@ exports.get_shadow = async function(req, res) {
   		path: '/things/'+req.body.thingName+'/shadow?name='+req.body.shadowName,
   		headers: {
     		'Content-Type': 'application/x-amz-json-1.0',
-    	//	'X-Amz-Target': 'DynamoDB_20120810.ListTables'
   		},
   			body: '{}'
 		}, {
@@ -145,16 +144,6 @@ exports.contact_us = async (req, res) => {
 	res.json(data);
 };
 
-
-//Esporta gli utenti
-/*
-exports.list_utenti = function(req, res) {
-	Utenti.all({}, function(err, utenti) {
-		if (err)
-			res.send(err);
-		res.json(utenti);
-	});
-};
 */
 
 exports.show_adminPage = function(req, res) {
@@ -198,6 +187,41 @@ exports.set_coordinates = async function(req, res) {
 		console.log(error);
 		res.status(501).json({errors: [error]});
 	}
+}
+
+exports.set_alarm = async function(req, res) {
+  try {
+    console.log(req.body.code);
+
+    const building = await Buildings.query("id").eq(config.buildingID).exec();
+    console.log("Building = "+building[0].id);
+
+    var hashedCode = sha512(req.body.code, building.sale);
+    if (hashedCode.passwordHash == building.code) {
+      var result = aws4.sign({
+      	service: 'iotdata',
+    		host: config.host,
+      	region: config.region,
+      	method: 'POST',
+      	path: '/things/'+config.alarmThing+'/shadow?name='+config.alarmShadow,
+      	headers: {
+      		'Content-Type': 'application/x-amz-json-1.0',
+      	},
+      		body: '{}'
+    	}, {
+    		secretAccessKey: config.secretAccessKey,
+    		accessKeyId: config.accessKeyId
+    	});
+    	const ret = await request(result);
+    	console.log(ret.body);
+    	res.status(201).json({msg: "Codice Corretto!"});
+    } else {
+      res.status(501).json({msg: "Codice Errato!"});
+    }
+  } catch (error) {
+	   console.log(error);
+	   res.status(501).json({errors: [error]});
+    }
 }
 
 var sha512 = function(password, salt){

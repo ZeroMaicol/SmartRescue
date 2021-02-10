@@ -29,6 +29,9 @@ module.exports = function(app) {
 	app.route('/api/getshadow')
 		.post(controller.get_shadow);
 
+	app.route('/api/alarm')
+		.post(controller.set_alarm);
+
 	app.route('/api/setCoordinates')
 		.post(controller.set_coordinates);
 

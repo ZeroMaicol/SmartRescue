@@ -1,0 +1,13 @@
+[31m*** RUN ABORTED ***[0m
+[31m  java.lang.ClassNotFoundException: org.scalatest.junit.JUnitWrapperSuite[0m
+[31m  at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:471)[0m
+[31m  at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:589)[0m
+[31m  at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:522)[0m
+[31m  at org.scalatest.tools.Runner$.doRunRunRunDaDoRunRun(Runner.scala:1208)[0m
+[31m  at org.scalatest.tools.Runner$.$anonfun$runOptionallyWithPassFailReporter$24(Runner.scala:993)[0m
+[31m  at org.scalatest.tools.Runner$.$anonfun$runOptionallyWithPassFailReporter$24$adapted(Runner.scala:971)[0m
+[31m  at org.scalatest.tools.Runner$.withClassLoaderAndDispatchReporter(Runner.scala:1480)[0m
+[31m  at org.scalatest.tools.Runner$.runOptionallyWithPassFailReporter(Runner.scala:971)[0m
+[31m  at org.scalatest.tools.Runner$.main(Runner.scala:775)[0m
+[31m  at org.scalatest.tools.Runner.main(Runner.scala)[0m
+[31m  ...[0m

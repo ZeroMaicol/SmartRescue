@@ -224,6 +224,31 @@ exports.set_alarm = async function(req, res) {
     }
 }
 
+exports.get_alarm = async function(req, res) {
+  try {
+    var result = aws4.sign({
+      service: 'iotdata',
+    	host: config.host,
+    	region: config.region,
+    	method: 'GET',
+    	path: '/things/'+config.alarmThing+'/shadow?name=',
+    	headers: {
+      	'Content-Type': 'application/x-amz-json-1.0',
+      },
+      	body: '{}'
+    },{
+    	secretAccessKey: config.secretAccessKey,
+    	accessKeyId: config.accessKeyId
+    });
+    const ret = await request(result);
+    console.log(ret.body);
+    res.status(201).json({body: ret.body});
+  } catch (error) {
+	   console.log(error);
+	   res.status(501).json({errors: [error]});
+    }
+}
+
 var sha512 = function(password, salt){
 	if (!salt) {
 		const length = 32;

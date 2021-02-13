@@ -234,6 +234,7 @@ var app = new Vue({
         }
     },
     parseThingsToListShadow: function(shadow) {
+      this.currentShadow = "";
       this.interval = setInterval(function() {
               axios.post("/api/getshadow", {thingName: shadow.shadowThing, shadowName: shadow.shadowName})
               .then(response => {

@@ -12,7 +12,9 @@ object SensorsController {
   implicit def funToRunnable(fun: () => Unit): Runnable = new Runnable() { def run(): Unit = fun() }
 
 
+  //todo init both
   var sensors: Map[String, NamedShadow] = Map()
+  var adjacencyMatrix: Map[(String,String),Int] = Map()
   private var shadowClient: Option[IotShadowClient] = None
   private var mqttConnection: Option[MqttClientConnection] = None
   private var thingId: String = ""
@@ -67,20 +69,9 @@ object SensorsController {
   def addSensor(name: String, sensor: NamedShadow): Unit = sensors = sensors + (name -> sensor)
 
 
-//  val subscribed: CompletableFuture[Integer] = connection.subscribe(topic, QualityOfService.AT_LEAST_ONCE, (message: MqttMessage) => {
-//    def foo(message: MqttMessage) = {
-//      try {
-//        val payload = new String(message.getPayload, "UTF-8")
-//        System.out.println("MESSAGE: " + payload)
-//      } catch {
-//        case ex: UnsupportedEncodingException =>
-//          System.out.println("Unable to decode payload: " + ex.getMessage)
-//      }
-//    }
-//
-//    foo(message)
-//  })
-//
-//  subscribed.get
+  def parseAdjacencyMatrix(stringMatrix: String): Unit = {
+    adjacencyMatrix = Map()
+  }
+
 
 }

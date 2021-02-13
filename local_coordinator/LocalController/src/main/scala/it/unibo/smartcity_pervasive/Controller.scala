@@ -1,41 +1,47 @@
 package it.unibo.smartcity_pervasive
 
 import it.unibo.smartcity_pervasive.aws_iot.alarm.AlarmController
-import it.unibo.smartcity_pervasive.aws_iot.things.SensorsController
-import it.unibo.smartcity_pervasive.utils.{ArgsUtils, Simulators}
+import it.unibo.smartcity_pervasive.aws_iot.things.{SensorsController, SensorsSimulator, SimulatedSensor}
+import it.unibo.smartcity_pervasive.utils.ArgsUtils
 import it.unibo.smartcity_pervasive.zigbee2mqtt.ZigbeeController
 import org.eclipse.paho.client.mqttv3.{MqttClient, MqttConnectOptions}
 import software.amazon.awssdk.crt.CRT
 import software.amazon.awssdk.crt.io.{ClientBootstrap, EventLoopGroup, HostResolver}
-import software.amazon.awssdk.crt.mqtt.{MqttClientConnection, MqttClientConnectionEvents}
+import software.amazon.awssdk.crt.mqtt.{MqttClientConnection, MqttClientConnectionEvents, QualityOfService}
 import software.amazon.awssdk.iot.AwsIotMqttConnectionBuilder
 import software.amazon.awssdk.iot.iotshadow.IotShadowClient
+import software.amazon.awssdk.iot.iotshadow.model.ShadowDeltaUpdatedSubscriptionRequest
 
-import java.util.Timer
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ScheduledThreadPoolExecutor
 import scala.sys.exit
 import scala.util.Using
 
 object Controller extends App {
 
+  println(args.toList)
   val arguments = ArgsUtils.argMap(Map(), args.toList)
-  if ((ArgsUtils.settables -- arguments.keySet).nonEmpty) {
+  if ((ArgsUtils.mustSet -- arguments.keySet).nonEmpty) {
     ArgsUtils.printUsage()
     exit
   }
 
-  val localMqttClient = new MqttClient("tcp://127.0.0.1:1883", "test")
+  val certPath = arguments("cert")
+  val keyPath = arguments("key")
+  val rootCaPath = arguments("rootca")
+  val clientId = java.util.UUID.randomUUID.toString
+  val endpoint = arguments("endpoint")
+  val thingName: String = arguments("thingName")
+  val buildingId: String = arguments("buildingId")
+  val mqttClientPath: String = arguments("localMqttAddress")
+
+
+  val localMqttClient = new MqttClient(mqttClientPath, "test")
   val options = new MqttConnectOptions
   options.setAutomaticReconnect(true)
   options.setCleanSession(true)
   options.setConnectionTimeout(10)
   localMqttClient.connect(options)
   ZigbeeController(localMqttClient)
-
-  val simulators = Set("0x10158d0003467624", "0x20158d0003467624")
-  val timer = new Timer()
-  simulators.map { s => Simulators.simulateSmokeSensor(s) }
-    .foreach { t => timer.schedule(t, 5000L) }
 
 
   val callbacks: MqttClientConnectionEvents = new MqttClientConnectionEvents() {
@@ -48,21 +54,14 @@ object Controller extends App {
     }
   }
 
-  val certPath = arguments("certPath")
-  val keyPath = arguments("keyPath")
-  val rootCaPath = arguments("rootCaPath")
-  val clientId = arguments("clientId")
-  val endpoint = arguments("endpoint")
-  val thingId: String = arguments("thingId")
-  val buildingId: String = arguments("buildingId")
 
   Using(new EventLoopGroup(1)) { eventLoopGroup =>
     Using(new HostResolver(eventLoopGroup)) { resolver =>
       Using(new ClientBootstrap(eventLoopGroup, resolver)) { clientBootstrap =>
         Using(AwsIotMqttConnectionBuilder.newMtlsBuilderFromPath(certPath, keyPath)) { builder =>
-          if (rootCaPath != null) builder.withCertificateAuthorityFromPath(null, rootCaPath)
+          if (rootCaPath != "") builder.withCertificateAuthorityFromPath(null, rootCaPath)
 
-          AwsIotMqttConnectionBuilder.newMtlsBuilderFromPath(certPath, keyPath)
+          builder
             .withClientId(clientId)
             .withEndpoint(endpoint)
             .withCleanSession(true)
@@ -70,13 +69,20 @@ object Controller extends App {
             .withBootstrap(clientBootstrap);
 
           Using(builder.build()) { connection =>
-            val connected = connection.connect
+            val shadowClient = new IotShadowClient(connection)
+            val connected = connection.connect()
             try {
-              val sessionPresent = connected.get
+              val sessionPresent = connected.get()
               println("Connected to " + (if (!sessionPresent) "clean" else "existing") + " session!")
-              initializeControllers(new IotShadowClient(connection), connection, thingId, buildingId)
+              val threadPoolExecutor = new ScheduledThreadPoolExecutor(2)
+              initializeControllers(shadowClient, connection, threadPoolExecutor, thingName, buildingId)
+              initializeSimulators(threadPoolExecutor, shadowClient, connection, thingName, buildingId)
+
+              System.in.read()
+              exit()
             } catch {
               case ex: Exception =>
+                println(ex)
                 throw new RuntimeException("Exception occurred during connect", ex)
             }
 
@@ -86,15 +92,36 @@ object Controller extends App {
     }
   }
 
-  System.in.read()
-
 
   def initializeControllers(shadowClient: IotShadowClient,
                             connection: MqttClientConnection,
+                            threadPoolExecutor: ScheduledThreadPoolExecutor,
                             thingName: String,
                             buildingName: String): Unit = {
 
-    AlarmController.start(shadowClient, connection, thingName, buildingName)
-    SensorsController.start(shadowClient, connection, buildingName, buildingName)
+    AlarmController.start(shadowClient, threadPoolExecutor, buildingName)
+    SensorsController.start(shadowClient, connection, thingName, buildingName)
   }
+
+  def initializeSimulators(threadPoolExecutor: ScheduledThreadPoolExecutor,
+                           shadowClient: IotShadowClient,
+                           connection: MqttClientConnection,
+                           thingName: String,
+                           buildingName: String): Unit = {
+
+    //todo parse from adjacency matrix
+    SensorsSimulator.simulateSmokeSensors(
+      withSmokeOn = Set(
+        SimulatedSensor("Start", -78.500311, 38.031996),
+        SimulatedSensor("A", -78.500417, 38.032198),
+        SimulatedSensor("B", -78.500576, 38.031813),
+        SimulatedSensor("Exit", -78.499422, 38.032148)),
+      withoutSmokeOn = Set(SimulatedSensor("C", -78.499955, 38.031600)),
+      poolExecutor = threadPoolExecutor,
+      shadowClient = shadowClient,
+      mqttConnection = connection,
+      buildingId = buildingName,
+      thingName = thingName)
+  }
+
 }

@@ -52,6 +52,12 @@ case class MqttMessageParser(message: String) {
     }.toMap
   }
 
+  def parseJsonToMap: Option[Map[String,Any]] = {
+    implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+    try { Some(parsed.extract[Map[String, Any]]) }
+    catch { case x: Exception => None }
+  }
+
   def parseDefinition(definitionValue: JValue): Map[String, AnyRef] = {
     val JObject(list) = definitionValue
     list.flatMap { case(defProperty, defValue) =>

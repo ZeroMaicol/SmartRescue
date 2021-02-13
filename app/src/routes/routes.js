@@ -18,10 +18,10 @@ module.exports = function(app) {
 
 	app.get('/api/log', controller.who_logged);
 
-/*	app.route('/api/utenti')
-		.get(isAdminLoggedIn, controller.list_utenti)
+app.route('/api/utenti')
+		//.get(isAdminLoggedIn, controller.list_utenti)
 		.post(validator.new_user, controller.new_utente);
-
+		/*
 	app.route('/api/utentiUpdate')
 			.post(controller.set_thingID); //Validator?
 */

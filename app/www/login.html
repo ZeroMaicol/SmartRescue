@@ -66,7 +66,7 @@ Inspirations:
 						v-on:leave="leaveTransition"
 						v-on:after-leave="afterLeaveTransition"
 						mode="out-in">
-					<form key="1" v-if='isSignIn' ref="formLogin" class="login-form animated" method="post">
+					<form key="1" v-if='isSignIn' ref="formLogin" class="login-form animated" method="post" autocomplete="off">
 						<div class="sign-in-htm">
 							<div class="username-row scroll-transition">
 								<label for="username-signin">
@@ -104,7 +104,7 @@ Inspirations:
 							</div>
 						</div>
 					</form>
-					<form key="2" v-if="!isSignIn" ref="formSign animated" class="login-form">
+					<form key="2" v-if="!isSignIn" ref="formSign animated" class="login-form" autocomplete="off">
 						<div class="sign-up-htm">
 							<div class="username-row scroll-transition">
 								<label for="username-signup">

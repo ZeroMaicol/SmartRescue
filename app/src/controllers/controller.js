@@ -64,8 +64,8 @@ exports.get_shadow = async function(req, res) {
   		},
   			body: '{}'
 		}, {
-			//secretAccessKey: config.secretAccessKey,
-			//accessKeyId: config.accessKeyId
+			secretAccessKey: config.secretAccessKey,
+			accessKeyId: config.accessKeyId
 		});
 		const ret = await request(result);
 		console.log(ret.body);
@@ -209,8 +209,8 @@ exports.set_alarm = async function(req, res) {
       	},
       		body: '{"state": {"desired": {"alarm": false}}}'
     	}, {
-    		//secretAccessKey: config.secretAccessKey,
-    		//accessKeyId: config.accessKeyId
+    		secretAccessKey: config.secretAccessKey,
+    		accessKeyId: config.accessKeyId
     	});
     	const ret = await request(result);
     	console.log(ret.body);
@@ -237,8 +237,8 @@ exports.get_alarm = async function(req, res) {
       },
       	body: '{}'
     },{
-    	//secretAccessKey: config.secretAccessKey,
-    	//accessKeyId: config.accessKeyId
+    	secretAccessKey: config.secretAccessKey,
+    	accessKeyId: config.accessKeyId
     });
     const ret = await request(result);
     console.log(ret.body);

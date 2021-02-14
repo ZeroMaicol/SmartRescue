@@ -1,0 +1,32 @@
+Data inserimento: Jan 19, 2021
+
+Lista dei componenti: Maicol Forti 0000886044, Christian Serra 0000890749
+
+Proposta di progetto: Il sistema Smart Evacuation si occupa di controllare e gestire le evacuazioni indoor.
+Il sistema si suddivide in:
+Sistema di Controllo nell'Edificio:
+Sarà presente un controllore che raccoglie i dati dalla sensoristica e li rende disponibili al cloud.
+Questo controllore si occupa dell'attivazione della procedura di allarme. Questa può essere avviata automaticamente, dalla lettura di
+dati anomali, oppure manualmente, tramite pulsanti fisici nell'edificio.
+Il controllore gestirà l'evacuazione calcolando il percorso di fuga ottimale con l'algoritmo di Dijkstra, applicato in real time in base alle condizioni delle vie di fuga.
+Per rappresentare un edificio, sarà necessario fornire una rappresentazione della planimetria, in certo formato.
+Per quanto riguarda la sensoristica, il sistema verrà sviluppato tenendo aperta la possibilità di aggiungere una varietà di sensori di diversi
+(Fumo, Temperatura, Umidità), con supporto di vari protocolli di comunicazione (Wi-fi, Bluetooth, Zigbee...).
+Cloud:
+La parte cloud raccoglierà le informazioni dall'edificio che verranno
+visualizzate su un sito web. In particolare:
+- le informazioni relative allo stato della sensoristica
+- la mappa dell'edificio con le vie di fuga accessibili, in tempo reale
+Sarà inoltre possibile disattivare l'allarme con un codice, dal sito web
+L'idea è quella di comprendere l'utilizzo di AWS IoTCore e altri servizi di AWS.
+Si valutano eventuali estensioni:
+- gestire il controllore come un sistema decentralizzato, per renderlo più resiliente.
+- utilizzare device mobili per implementare una forma di crowd control e suggerire percorsi migliori.
+Questo progetto verrà sviluppato in comune con il corso di Pervasive Computing in quanto contente argomenti in comune, nel caso non ci siano problemi per lei.
+Abbiamo ottenuto l'approvazione del prof. Ricci e del prof. Viroli, attendiamo anche la sua conferma.
+La consegna del progetto è prevista per il 15 febbraio come definito nell'appello del 19 febbraio, quindi vorremmo poter iniziare appena possibile.
+La ringrazio,
+Cordiali Saluti,
+Forti Maicol e Christian Serra
+
+Referente: Christian Serra (christian.serra2@studio.unibo.it)

@@ -51,8 +51,8 @@ console.log('Ten seconds later, ...'); //connessione al db mongoose.set('useFind
 AWS.config.update({
   region: "eu-central-1",
   endpoint: "https://dynamodb.eu-central-1.amazonaws.com",
-  accessKeyId: config.accessKeyId,
-  secretAccessKey: config.secretAccessKey
+//  accessKeyId: config.accessKeyId,
+//  secretAccessKey: config.secretAccessKey
 
 });
 

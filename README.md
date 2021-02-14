@@ -1,11 +1,5 @@
 # Smart Evacuation
 
-Live demo @ TODO
-
-## Attention
-
-TODO
-
 ## Tutorial
 
 cd app  

@@ -18,6 +18,8 @@ sass scss:css
 cd ../  
 node index.js  
 
+NOTA: Le credenziali sono state tolte dal file di configurazione, per poterlo testare sono necessarie.
+
 ## License
 
 This program is free software: you can redistribute it and/or modify

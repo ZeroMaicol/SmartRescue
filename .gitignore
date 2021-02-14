@@ -86,6 +86,8 @@ lib_managed/
 src_managed/
 project/boot/
 project/plugins/project/
+local_coordinator/LocalController/target
+local_coordinator/LocalController/out
 
 # Scala-IDE specific
 .scala_dependencies

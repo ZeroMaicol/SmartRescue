@@ -28,16 +28,15 @@ services:
       - default
     depends_on:
       - mosquitto
-  aws_app:
-    build: ./aws_app
+  local_controller:
+    build: ./LocalController
     ports:
       - "8883:8883"
-    environment:
-      FLASK_ENV: development
     networks:
       - default
     depends_on:
       - mosquitto
+
 networks:
   default:
     ipam:

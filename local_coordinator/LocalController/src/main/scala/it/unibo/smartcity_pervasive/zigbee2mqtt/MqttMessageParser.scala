@@ -1,7 +1,7 @@
 package it.unibo.smartcity_pervasive.zigbee2mqtt
 
 
-import it.unibo.smartcity_pervasive.aws_iot.model.{Binary, Enum, MqttDeviceInfo, Numeric, NumericWithRange, SensorProperty, SmokeDetector}
+import it.unibo.smartcity_pervasive.aws_iot.model.{Binary, PropertyEnum, MqttDeviceInfo, NumericUnlimited, NumericWithRange, SensorProperty, SmokeDetector}
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.json4s._
 import org.json4s.native.JsonMethods._
@@ -168,7 +168,7 @@ case class MqttMessageParser(message: String) {
                   value_min = min.asInstanceOf[Int],
                   value_max = max.asInstanceOf[Int]
                 )
-                case _ => Numeric(
+                case _ => NumericUnlimited(
                   name = name,
                   description = desc,
                   inUpdates = inUpdates,
@@ -180,7 +180,7 @@ case class MqttMessageParser(message: String) {
               List(property)
 
             case "enum" =>
-              List(Enum(
+              List(PropertyEnum(
                 name = name,
                 description = desc,
                 inUpdates = inUpdates,

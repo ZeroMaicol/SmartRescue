@@ -8,7 +8,7 @@ import matchers._
 import it.unibo.smartcity_pervasive.zigbee2mqtt.MqttMessageParser
 import org.json4s._
 import org.json4s.native.JsonMethods._
-import it.unibo.smartcity_pervasive.aws_iot.model.{Binary, Enum, Numeric, NumericWithRange}
+import it.unibo.smartcity_pervasive.aws_iot.model.{Binary, PropertyEnum, NumericUnlimited, NumericWithRange}
 
 import java.util
 import scala.jdk.CollectionConverters.{MapHasAsJava, MapHasAsScala}
@@ -777,7 +777,7 @@ class MqttMessageParsingSuite extends AnyFlatSpec with should.Matchers {
                   value_min = min.asInstanceOf[Int],
                   value_max = max.asInstanceOf[Int]
                 )
-                case _ => Numeric(
+                case _ => NumericUnlimited(
                   name = name,
                   description = desc,
                   inUpdates = inUpdates,
@@ -789,7 +789,7 @@ class MqttMessageParsingSuite extends AnyFlatSpec with should.Matchers {
               List(property)
 
             case "enum" =>
-              List(Enum(
+              List(PropertyEnum(
                 name = name,
                 description = desc,
                 inUpdates = inUpdates,

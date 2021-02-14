@@ -20,12 +20,12 @@ case class Binary(name: String,
   override def toString: String = s"$name Binary"
 }
 
-case class Numeric(name: String,
-                   description: String = "",
-                   inUpdates: Boolean,
-                   readable: Boolean,
-                   writable: Boolean,
-                   unit: String) extends SensorProperty {
+case class NumericUnlimited(name: String,
+                            description: String = "",
+                            inUpdates: Boolean,
+                            readable: Boolean,
+                            writable: Boolean,
+                            unit: String) extends SensorProperty {
   override def toString: String = s"$name: Numeric$unit"
 }
 
@@ -41,11 +41,11 @@ case class NumericWithRange(name: String,
 
 }
 
-case class Enum(name: String,
-                description: String = "",
-                inUpdates: Boolean,
-                readable: Boolean,
-                writable: Boolean,
-                values: List[String]) extends SensorProperty {
+case class PropertyEnum(name: String,
+                        description: String = "",
+                        inUpdates: Boolean,
+                        readable: Boolean,
+                        writable: Boolean,
+                        values: List[String]) extends SensorProperty {
   override def toString: String = s"$name: Enum with Values: (${values.mkString(",")})"
 }

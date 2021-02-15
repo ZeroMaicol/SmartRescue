@@ -63,9 +63,6 @@ exports.get_shadow = async function(req, res) {
     		'Content-Type': 'application/x-amz-json-1.0',
   		},
   			body: '{}'
-		}, {
-			secretAccessKey: config.secretAccessKey,
-			accessKeyId: config.accessKeyId
 		});
 		const ret = await request(result);
 		console.log(ret.body);
@@ -208,9 +205,6 @@ exports.set_alarm = async function(req, res) {
       		'Content-Type': 'application/x-amz-json-1.0',
       	},
       		body: '{"state": {"desired": {"alarm": false}}}'
-    	}, {
-    		secretAccessKey: config.secretAccessKey,
-    		accessKeyId: config.accessKeyId
     	});
     	const ret = await request(result);
     	console.log(ret.body);
@@ -236,9 +230,6 @@ exports.get_alarm = async function(req, res) {
       	'Content-Type': 'application/x-amz-json-1.0',
       },
       	body: '{}'
-    },{
-    	secretAccessKey: config.secretAccessKey,
-    	accessKeyId: config.accessKeyId
     });
     const ret = await request(result);
     console.log(ret.body);

@@ -18,8 +18,6 @@
   <script type="text/javascript" src="/static/js/all-plugins.js"></script>
   <script type="text/javascript" src="/static/js/plugin-active.js"></script>
   <script type='text/javascript' src='https://api.mazemap.com/js/v2.0.41/mazemap.min.js'></script>
-
-
 </head>
 
 <body>
@@ -30,7 +28,6 @@
       <span class="congratz">Thing {{currentShadow.shadowThing}}</span>
       <span class="congratz">Shadow {{currentShadow.shadowName}}</span>
     </h5>
-
     <h6 v-cloak slot="body">
       <strong>Type</strong>:{{currentShadow.shadowType}}<br/>
       <strong>Description</strong> {{currentShadow.shadowDescription}} <br/>
@@ -50,6 +47,7 @@
 <script src="https://npmcdn.com/vue-router/dist/vue-router.js"></script>
 <script>
 
+//Template del modale
 Vue.component('modal', {
     template: `
     <transition name="modal">
@@ -126,7 +124,8 @@ var app = new Vue({
     map: '',
     shadowPosMap: '',
     currentRoute: [],
-    previousRoute: []
+    previousRoute: [],
+    intervalAlarm: ''
 	},
 	methods: {
     hideModal: function() {
@@ -135,16 +134,19 @@ var app = new Vue({
       this.modalVisible = false;
     },
     showModal: function(shadow) {
+      clearInterval(this.interval);
       this.currentShadow = "";
       this.parseThingsToListShadow(shadow);
       this.modalVisible = true;
     },
+    //Elimina tutti i marker dalla mappa
     clearMarkers: function() {
       this.mazeMarkerList.forEach(marker => {
         marker.remove();
       })
       this.mazeMarkerList = [];
     },
+    //Crea un percorso dati due punti
     createRoute: function(myMap, start, dest) {
       var routeController = new Mazemap.RouteController(myMap);
 
@@ -157,6 +159,7 @@ var app = new Vue({
           myMap.fitBounds( bounds, {padding: 100} );
         });
     },
+    //Inizializza la mappa
     makeMap: async function() {
 
       var myMap = new Mazemap.Map({
@@ -170,145 +173,150 @@ var app = new Vue({
                   zLevelControl: true
               });
      this.map = myMap
-	},
-  loadData: async function (myMap) {
-    try {
-        this.things = await axios.get("/api/things");
-        this.things = this.things.data;
-        this.parseThingsToListShadowSetup(myMap);
-        //this.addMarkers(myMap);
-    } catch (error) {
-        console.log(error);
-    }
-  },
-  parseThingsToListShadowSetup: function(myMap){
-    this.shadowPosMap = new Map();
-    //For sui Thing
-    for (var thing in this.things) {
-      var shadowList = [];
-      //For sui devices
-      for (var device in this.things[thing]) {
-        //For sulle shadow
-        for (var shadow in this.things[thing][device]) {
-          var value = this.things[thing][device][shadow];
-          axios.post("/api/getshadow", {thingName: thing, shadowName: value.friendly_name})
-          .then(response => {
-            if (response.data.errors && response.data.errors.length > 0) {
-              console.log(error);
-            } else {
-              const json = JSON.parse(response.data.body);
-              if (!json.hasOwnProperty("message")){
-                var markerShadow = {
-                  shadowThing: thing,
-                  shadowName: response.data.shadowName,
-                  shadowType: this.things[response.data.thingName][device][response.data.shadowName].type,
-                  shadowImage: this.things[response.data.thingName][device][response.data.shadowName].img_path,
-                  shadowDescription: this.things[response.data.thingName][device][response.data.shadowName].description,
-                  shadowLat: this.things[response.data.thingName][device][response.data.shadowName].lat,
-                  shadowLong: this.things[response.data.thingName][device][response.data.shadowName].long,
-                  shadowZFloor: this.things[response.data.thingName][device][response.data.shadowName].zFloor,
-                  reported: json.state.reported,
-                  shadowDevice: device
-                };
-                this.shadowPosMap.set(markerShadow.shadowName, {lng: markerShadow.shadowLong, lat: markerShadow.shadowLat, zFloor: markerShadow.shadowZFloor})
-                this.makeMarker(markerShadow, myMap);
-              }
-            }
-          }).catch(err => console.log(err))
-        }
+	 },
+    //Carica i dati della mappa
+    loadData: async function (myMap) {
+      try {
+          this.things = await axios.get("/api/things");
+          this.things = this.things.data;
+          this.parseThingsToListShadowSetup(myMap);
+          //this.addMarkers(myMap);
+      } catch (error) {
+          console.log(error);
       }
-    }
-  },
-  parseThingsToListShadow: function(shadow) {
-    this.interval = setInterval(function() {
-      this.counter += 1;
-            axios.post("/api/getshadow", {thingName: shadow.shadowThing, shadowName: shadow.shadowName})
+    },
+    //Al primo caricamento i dati statici vengono presi dal database per impostare i marker sulla mappa
+    parseThingsToListShadowSetup: function(myMap){
+      this.shadowPosMap = new Map();
+      //For sui Thing
+      for (var thing in this.things) {
+        var shadowList = [];
+        //For sui devices
+        for (var device in this.things[thing]) {
+          //For sulle shadow
+          for (var shadow in this.things[thing][device]) {
+            var value = this.things[thing][device][shadow];
+            axios.post("/api/getshadow", {thingName: thing, shadowName: value.friendly_name})
             .then(response => {
               if (response.data.errors && response.data.errors.length > 0) {
                 console.log(error);
               } else {
                 const json = JSON.parse(response.data.body);
                 if (!json.hasOwnProperty("message")){
-                  this.currentShadow = {
-                    shadowName: shadow.shadowName,
-                    shadowType: shadow.shadowType,
-                    shadowImage: shadow.shadowImage,
-                    shadowDescription: shadow.shadowDescription,
-                    shadowLat: shadow.shadowLat,
-                    shadowLong: shadow.shadowLong,
-                    shadowZFloor: shadow.shadowZFloor,
+                  var markerShadow = {
+                    shadowThing: thing,
+                    shadowName: response.data.shadowName,
+                    shadowType: this.things[response.data.thingName][device][response.data.shadowName].type,
+                    shadowImage: this.things[response.data.thingName][device][response.data.shadowName].img_path,
+                    shadowDescription: this.things[response.data.thingName][device][response.data.shadowName].description,
+                    shadowLat: this.things[response.data.thingName][device][response.data.shadowName].lat,
+                    shadowLong: this.things[response.data.thingName][device][response.data.shadowName].long,
+                    shadowZFloor: this.things[response.data.thingName][device][response.data.shadowName].zFloor,
                     reported: json.state.reported,
-                    shadowDevice: shadow.shadowDevice,
-                    shadowThing: shadow.shadowThing
+                    shadowDevice: device
                   };
+                  this.shadowPosMap.set(markerShadow.shadowName, {lng: markerShadow.shadowLong, lat: markerShadow.shadowLat, zFloor: markerShadow.shadowZFloor})
+                  this.makeMarker(markerShadow, myMap);
                 }
               }
             }).catch(err => console.log(err))
-          }.bind(this), 1000);
-  },
-  makeMarker: function(shadow, myMap) {
-      var lngLat = {lng: shadow.shadowLong, lat: shadow.shadowLat};
-
-      var mazeMarker = new Mazemap.MazeMarker( {
-          color: "MazeBlue",
-          size: 36,
-          zLevel: shadow.shadowZFloor,
-          innerCircle: true,
-          imgUrl: shadow.shadowImage,
-          imgScale: 1.1,
-          preventClickBubble: false // Allow click to go through to global map layer
-        } ).setLngLat( lngLat ).addTo(myMap);
-
-        this.mazeMarkerList.push(mazeMarker);
-
-
-        mazeMarker.on('click', () => {
-          // Can also do extra click handling here...
-          this.showModal(shadow);
-        });
-  },
-  isAlarm: async function() {
-    this.interval = setInterval(async function() {
-        this.currentRoute = [];
-        var alarm = await axios.get("/api/alarm");
-        const json = JSON.parse(alarm.data.body);
-        if (json.state.reported.alarm) {
-          //Get path e mostralo
-          var escape = json.state.reported.escape_path;
-          var length = Object.keys(escape).length;
-
-          for (let i = 0; i < length; i++) {
-            this.currentRoute += this.shadowPosMap.get(escape[i]._1);
           }
-          if (this.currentRoute != this.previousRoute) {
-            for (let i = 0; i < length; i++) {
-
-              var lng_1 = this.shadowPosMap.get(escape[i]._1)["lng"];
-              var lat_1 = this.shadowPosMap.get(escape[i]._1)["lat"];
-              var z_1 = this.shadowPosMap.get(escape[i]._1)["zFloor"];
-
-
-              var lng_2 = this.shadowPosMap.get(escape[i]._2)["lng"];
-              var lat_2 = this.shadowPosMap.get(escape[i]._2)["lat"];
-              var z_2 = this.shadowPosMap.get(escape[i]._2)["zFloor"];
-
-              console.log(lng_1 +" "+lat_1 +" "+z_1+ " --"+ lng_2+" "+lat_2+" "+z_2);
-
-              this.createRoute(this.map, {lngLat: {lng: lng_1, lat: lat_1}, zLevel: z_1}, {lngLat: {lng: lng_2, lat: lat_2, zLevel: z_2}});
-
-            }
-          }
-          this.previousRoute = this.currentRoute;
         }
-    }.bind(this), 5000);
+      }
+    },
+    //In risposta al click di un marker, i dati in tempo reale della relativa shadow vengono caricati.
+    parseThingsToListShadow: function(shadow) {
+      this.interval = setInterval(function() {
+        this.counter += 1;
+              axios.post("/api/getshadow", {thingName: shadow.shadowThing, shadowName: shadow.shadowName})
+              .then(response => {
+                if (response.data.errors && response.data.errors.length > 0) {
+                  console.log(error);
+                } else {
+                  const json = JSON.parse(response.data.body);
+                  if (!json.hasOwnProperty("message")){
+                    this.currentShadow = {
+                      shadowName: shadow.shadowName,
+                      shadowType: shadow.shadowType,
+                      shadowImage: shadow.shadowImage,
+                      shadowDescription: shadow.shadowDescription,
+                      shadowLat: shadow.shadowLat,
+                      shadowLong: shadow.shadowLong,
+                      shadowZFloor: shadow.shadowZFloor,
+                      reported: json.state.reported,
+                      shadowDevice: shadow.shadowDevice,
+                      shadowThing: shadow.shadowThing
+                    };
+                  }
+                }
+              }).catch(err => console.log(err))
+            }.bind(this), 1000);
+    },
+    //Crea un marker per la relativa shadow, lo mette sulla mappa e imposta l'handler del click
+    makeMarker: function(shadow, myMap) {
+        var lngLat = {lng: shadow.shadowLong, lat: shadow.shadowLat};
+
+        var mazeMarker = new Mazemap.MazeMarker( {
+            color: "MazeBlue",
+            size: 36,
+            zLevel: shadow.shadowZFloor,
+            innerCircle: true,
+            imgUrl: shadow.shadowImage,
+            imgScale: 1.1,
+            preventClickBubble: false
+          } ).setLngLat( lngLat ).addTo(myMap);
+
+          this.mazeMarkerList.push(mazeMarker);
+
+          mazeMarker.on('click', () => {
+            this.showModal(shadow);
+          });
+    },
+    //Controlla se l'allarme è attivo, nel caso costruisce il percorso di fuga.
+    //Il percorso sarà disegnato su mappa solo se diverso da quello precedente.
+    isAlarm: async function() {
+      this.intervalAlarm = setInterval(async function() {
+          this.currentRoute = [];
+          var alarm = await axios.get("/api/alarm");
+          const json = JSON.parse(alarm.data.body);
+          if (json.state.reported.alarm) {
+            //Get path e mostralo
+            var escape = json.state.reported.escape_path;
+            var length = Object.keys(escape).length;
+
+            for (let i = 0; i < length; i++) {
+              this.currentRoute += this.shadowPosMap.get(escape[i]._1);
+            }
+            if (this.currentRoute != this.previousRoute) {
+              for (let i = 0; i < length; i++) {
+
+                var lng_1 = this.shadowPosMap.get(escape[i]._1)["lng"];
+                var lat_1 = this.shadowPosMap.get(escape[i]._1)["lat"];
+                var z_1 = this.shadowPosMap.get(escape[i]._1)["zFloor"];
+
+
+                var lng_2 = this.shadowPosMap.get(escape[i]._2)["lng"];
+                var lat_2 = this.shadowPosMap.get(escape[i]._2)["lat"];
+                var z_2 = this.shadowPosMap.get(escape[i]._2)["zFloor"];
+
+                console.log(lng_1 +" "+lat_1 +" "+z_1+ " --"+ lng_2+" "+lat_2+" "+z_2);
+
+                this.createRoute(this.map, {lngLat: {lng: lng_1, lat: lat_1}, zLevel: z_1}, {lngLat: {lng: lng_2, lat: lat_2, zLevel: z_2}});
+              }
+            }
+            this.previousRoute = this.currentRoute;
+          } else {
+            clearInterval(this.intervalAlarm);
+          }
+      }.bind(this), 5000);
+    },
+    init: async function(){
+      this.clearMarkers();
+      await this.makeMap();
+      setTimeout(() => this.loadData(this.map), 2000);
+      setTimeout(() => this.isAlarm(), 10000);
+    }
   },
-  init: async function(){
-    this.clearMarkers();
-    await this.makeMap();
-    setTimeout(() => this.loadData(this.map), 2000);
-    setTimeout(() => this.isAlarm(), 10000);
-  }
-},
 	mounted(){
     this.init();
 	}

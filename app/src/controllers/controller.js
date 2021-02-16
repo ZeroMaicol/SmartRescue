@@ -1,28 +1,21 @@
-//var mongoose = require('mongoose');
 var dynamoose = require('dynamoose');
+
 var Utenti = dynamoose.model("Utenti");
 var Buildings = dynamoose.model("buildings")
-//var UserMessages = mongoose.model("UserMessages");
-//var EmailVerifications = mongoose.model("EmailVerifications");
-//var Qr = mongoose.model("Qr");
-//var nodemailer = require("nodemailer");
+
 const { validationResult } = require('express-validator');
 var config = require('./config');
-
 var Crypto = require('crypto');
 const passport = require('passport');
-
-
-
-//--------------------------------
-
 
 var https = require('https');
 var aws4 = require('aws4');
 
+//--------------------------------
 
 const RETRY_ERRS = ['EADDRINFO', 'ETIMEDOUT', 'ECONNRESET', 'ESOCKETTIMEDOUT', 'ENOTFOUND', 'EMFILE']
 
+//Richiesta sulla base delle opzioni che vengono passate. Ritorna il risultato della richiesta.
 var request = async function request(options) {
   options.retries = options.retries || 0
   return new Promise((resolve, reject) => {
@@ -51,6 +44,8 @@ var request = async function request(options) {
   })
 }
 
+
+//Effettua la signature aws4 e richiede i dati della shadow con una HTTP GET.
 exports.get_shadow = async function(req, res) {
 	try {
 		var result = aws4.sign({
@@ -86,14 +81,9 @@ exports.who_logged = (req, res) => {
 	res.json({user:req.user._id});
 };
 
+//Ritorna le informazioni utili all'utente autenticato.
 exports.get_home_data = async (req, res) => {
 	const now = new Date();
-	/*const data = await get_rankings(now.getFullYear(), now.getMonth() + 1);
-	if (data.error) {
-		console.log(data.error);
-		res.json(data.error);
-		return;
-	}*/
 	const isLoggedIn = req.isAuthenticated();
 	res.json({
 		isLoggedIn: isLoggedIn,
@@ -101,50 +91,6 @@ exports.get_home_data = async (req, res) => {
 		buildingID: isLoggedIn ? config.buildingID : ""
 	});
 }
-
-
-exports.show_contact_us = function(req, res) {
-	res.sendFile(appRoot + '/www/contactUs.html');
-};
-
-/*
-exports.get_contact_us = function(req, res) {
-	UserMessages.find({}, function(err, messages) {
-		if (err)
-			res.send(err);
-		res.json(messages);
-	});
-};
-/*
-
-exports.contact_us = async (req, res) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		return res.json({errors: errors.array()});
-	}
-	const data = {
-		fullName: req.body.fullName,
-		email: req.body.email,
-		contact: req.body.contact,
-		company: req.body.company,
-		message: req.body.message,
-	}
-	console.log(data);
-	const newMessage = new UserMessages(data);
-	await newMessage.save();
-	mailOptions = {
-		to: process.env.GMAIL_HOST,
-		subject: 'ASW-Cafeteria - Contacted by ' + data.fullName,
-		text: 'From: ' + data.email + '\n'
-			+ 'Company: ' + data.company + '\n'
-			+ 'Contact: ' + data.contact + '\n\n'
-			+ 'Message:\n' + data.message
-	};
-	smtpTransport.sendMail(mailOptions);
-	res.json(data);
-};
-
-*/
 
 exports.show_adminPage = function(req, res) {
 	res.sendFile(appRoot + '/www/map.html');
@@ -158,10 +104,10 @@ exports.show_device = function(req, res) {
 	res.sendFile(appRoot + '/www/device.html');
 };
 
-//Login route
 exports.show_login = function(req, res) {
 	res.sendFile(appRoot + '/www/login.html');
 };
+
 
 //Esporta things di un building
 exports.list_things = async function(req, res) {
@@ -175,20 +121,7 @@ exports.list_things = async function(req, res) {
 	}
 };
 
-//SET coordinates
-exports.set_coordinates = async function(req, res) {
-	try {
-		/*await dynamoose.transaction([
-			Buildings.transaction.update({"Account":req.body.account}, {"$SET":{"ThingID":req.body.thingID}})
-		]);*/
-		console.log("Building "+config.buildingID+" aggiornato con successo.");
-		res.status(201).json({msg: "Update riuscito!"})
-	} catch (error) {
-		console.log(error);
-		res.status(501).json({errors: [error]});
-	}
-}
-
+//Esegue una POST sulla shadow dell'allarme per impostarlo a false.
 exports.set_alarm = async function(req, res) {
   try {
     console.log(req.body.code);
@@ -224,6 +157,7 @@ exports.set_alarm = async function(req, res) {
     }
 }
 
+//Effettua una get sulla shadow dell'allarme e torna la risposta.
 exports.get_alarm = async function(req, res) {
   try {
     var result = aws4.sign({
@@ -249,6 +183,7 @@ exports.get_alarm = async function(req, res) {
     }
 }
 
+//Variabile utilizzata per l'algoritmo di criptazione SHA512
 var sha512 = function(password, salt){
 	if (!salt) {
 		const length = 32;
@@ -291,20 +226,7 @@ exports.new_utente = async function(req, res) {
 	}
 };
 
-exports.set_thingID = async function(req, res) {
-	try {
-		await dynamoose.transaction([
-			Utenti.transaction.update({"Account":req.body.account}, {"$SET":{"ThingID":req.body.thingID}})
-		]);
-		console.log("Utente "+req.body.account+" aggiornato con successo con thingID "+req.body.thingID);
-		res.status(201).json({msg: "Update riuscito!"})
-	} catch (error) {
-		console.log(error);
-		res.status(501).json({errors: [error]});
-	}
-}
-
-//sessione
+//Gestione della sessione con passport
 passport.serializeUser(function(user, cb) {
   	cb(null, user.Account);
 });
@@ -343,6 +265,7 @@ passport.use(new LocalStrategy(
   }
 ));
 
+//Controlla se il login è stato effettuato e ridirezione in base a esso.
 exports.check_login = (req, res, next) => {
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {

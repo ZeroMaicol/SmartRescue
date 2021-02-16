@@ -1,3 +1,4 @@
+//Modello di un utente: sarà definito da un Account, una mail, una password criptata in SHA512 con il sale, uno stato che determina se è attivo.
 const dynamoose = require('dynamoose');
 var Schema = dynamoose.Schema;
 

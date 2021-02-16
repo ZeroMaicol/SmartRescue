@@ -1,6 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-//var mongoose = require('mongoose');
+
 var AWS = require("aws-sdk");
 var favicon = require('serve-favicon');
 var path = require('path');
@@ -8,10 +8,7 @@ var Utenti = require('./src/models/utenteModels');
 var Buildings = require('./src/models/buildingModels');
 
 var config = require('./src/controllers/config');
-//var UserMessages = require('./src/models/userMessageModels');
-//var EmailVerifications = require('./src/models/emailVerificationModels');
-//var Qr = require('./src/models/qrModels');
-//Creo istanza di express (web server)
+
 var app = express();
 
 //importo parser per leggere i parametri passati in POST
@@ -32,7 +29,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-// aspetto che il container di mongo sia
 function pausecomp(millis)
 {
     var date = new Date();
@@ -42,22 +38,19 @@ function pausecomp(millis)
 }
 console.log('Taking a break...');
 pausecomp(10000);
-console.log('Ten seconds later, ...'); //connessione al db mongoose.set('useFindAndModify', false);
+console.log('Ten seconds later, ...');
 
 //DynamoDB
 //AWS
-
 
 AWS.config.update({
   region: "eu-central-1",
   endpoint: "https://dynamodb.eu-central-1.amazonaws.com",
 //  accessKeyId: config.accessKeyId,
 //  secretAccessKey: config.secretAccessKey
-
 });
 
 var dynamodb = new AWS.DynamoDB();
-
 
 // Routes
 var routes = require('./src/routes/routes');

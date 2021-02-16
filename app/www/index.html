@@ -149,7 +149,6 @@
                   <div class="redeemForm text-center">
                     <label v-cloak for="inputRedeem" v-show="false">Alarm Code</label>
                     <input @keyup.enter="stopAlarm()" id="inputRedeem" class="inputRedeem" placeholder="Alarm Code" v-model="result">
-                  <!--  <button class="buttonRedeem" @click="redeemLife()"><i class="fa fa-arrow-circle-right iconArrow"></i></button>-->
                   </div>
                   <div class="text-center">
                     <a href="javascript:void(0)" class="hero-cta buttonQRModal" @click="showQRModal()" data-toggle="modal" data-target=".bd-qr-modal-sm">Scan QR</a>
@@ -205,18 +204,6 @@
                         <div class="contact-outer-wrapper">
                             <div class="address-block">
                                 <p class="add-title">Contact Details</p>
-                                <!-- <div class="c-detail">
-                                    <span class="c-icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
-                                    <span class="c-info">12 Avenue center, st. marks road, CA</span>
-                                </div>
-                                <div class="c-detail">
-                                    <span class="c-icon"><i class="fa fa-phone" aria-hidden="true"></i></span> <span
-                                        class="c-info">+41982399090000</span>
-                                </div>
-                                <div class="c-detail">
-                                    <span class="c-icon"><i class="fa fa-envelope" aria-hidden="true"></i></span> <span
-                                        class="c-info">click@gmail.com</span>
-                                </div> -->
                                 <div class="c-detail">
                                         <span class="c-icon"><i class="fa fa-envelope" aria-hidden="true"></i></span> <span class="c-info">maicol.forti@studio.unibo.it</span>
                                 </div>
@@ -287,6 +274,7 @@
 <link rel="stylesheet" href="https://unpkg.com/vue-qrcode-reader@1.3.1/dist/vue-qrcode-reader.css">
 <script>
 
+//Template per il modale.
 Vue.component('modal', {
     template: `
     <transition name="modal">
@@ -324,39 +312,36 @@ Vue.component('modal', {
 `,
 });
 
-
-
 Vue.use(VueQrcodeReader)
 
     var app = new Vue({
         el: "#app",
         data: {
-            //hscores: { first: 0, second: 0, third: 0 },
-            contactUsData: {
-                fullName: "",
-                email: "",
-                contact: "",
-                company: "",
-                message: ""
-            },
-            isLoggedIn: false,
-            username: "",
-            dataReady: false,
-            modalQRVisible: false,
-            error: '',
-            result: '',
-            loading: false,
-            errorModal: false,
-            errorCamera: '',
-            successModal: false,
-            successMsgModal: false,
-            errorMsgModal: false
+          contactUsData: {
+              fullName: "",
+              email: "",
+              contact: "",
+              company: "",
+              message: ""
+          },
+          isLoggedIn: false,
+          username: "",
+          dataReady: false,
+          modalQRVisible: false,
+          error: '',
+          result: '',
+          loading: false,
+          errorModal: false,
+          errorCamera: '',
+          successModal: false,
+          successMsgModal: false,
+          errorMsgModal: false
         },
         methods: {
             onDecode (result) {
               this.result = result
-              this.ticketChoice = result;
             },
+            //Gestione del QR Code
             async onInit (promise) {
               try {
                 this.loading = true;
@@ -389,6 +374,7 @@ Vue.use(VueQrcodeReader)
               this.successModal = false;
               this.result = '';
             },
+            //Ferma l'allarme inviando un update sulla shadow dell'allarme.
             stopAlarm: function() {
               axios.post("/api/alarm", {code: this.result})
                 .then(response => {
@@ -400,32 +386,6 @@ Vue.use(VueQrcodeReader)
                   }
                   this.errorModal = true
                 });
-            },
-            contactUs: async function () {
-                axios.post("/api/contactUs", this.contactUsData)
-                    .then(response => {
-						this.error = '';
-                        if (response.data.errors && response.data.errors.length > 0) {
-                            for (i = 0; i<response.data.errors.length; i++){
-                              this.error += "["+response.data.errors[i].msg+"]";
-                              this.error += "\n";
-                            }
-                            this.errorMsgModal = true;
-                        } else {
-                            this.error = '';
-                            this.successMsgModal = true;
-                            this.contactUsData = {
-                                fullName: "",
-                                email: "",
-                                contact: "",
-                                company: "",
-                                message: ""
-                            };
-                        }
-                    }).catch(error => {
-                        this.error = error;
-                        this.errorMsgModal = true;
-                    });
             },
             loadData: async function () {
                 try {

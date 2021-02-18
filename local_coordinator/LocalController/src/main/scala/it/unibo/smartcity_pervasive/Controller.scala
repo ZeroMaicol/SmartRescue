@@ -112,11 +112,11 @@ object Controller extends App {
     //todo parse from adjacency matrix
     SensorsSimulator.simulateSmokeSensors(
       withSmokeOn = Set(
-        SimulatedSensor("Start", -78.500311, 38.031996),
-        SimulatedSensor("A", -78.500417, 38.032198),
-        SimulatedSensor("B", -78.500576, 38.031813),
-        SimulatedSensor("Exit", -78.499422, 38.032148)),
-      withoutSmokeOn = Set(SimulatedSensor("C", -78.499955, 38.031600)),
+        SimulatedSensor("Start", -78.500317, 38.031992),
+        SimulatedSensor("A", -78.500505, 38.032072),
+        SimulatedSensor("B", -78.500577, 38.031817),
+        SimulatedSensor("Exit", -78.499473, 38.032102)),
+      withoutSmokeOn = Set(SimulatedSensor("C", -78.499944, 38.031599)),
       poolExecutor = threadPoolExecutor,
       shadowClient = shadowClient,
       mqttConnection = connection,

@@ -172,7 +172,7 @@ var app = new Vue({
                   touchZoomRotate: false,
                   zLevelControl: true
               });
-     this.map = myMap
+     this.map = myMap;
 	 },
     //Carica i dati della mappa
     loadData: async function (myMap) {
@@ -180,7 +180,6 @@ var app = new Vue({
           this.things = await axios.get("/api/things");
           this.things = this.things.data;
           this.parseThingsToListShadowSetup(myMap);
-          //this.addMarkers(myMap);
       } catch (error) {
           console.log(error);
       }
@@ -274,7 +273,7 @@ var app = new Vue({
     },
     //Controlla se l'allarme è attivo, nel caso costruisce il percorso di fuga.
     //Il percorso sarà disegnato su mappa solo se diverso da quello precedente.
-    isAlarm: async function() {
+    isAlarm: async function(myMap) {
       this.intervalAlarm = setInterval(async function() {
           this.currentRoute = [];
           var alarm = await axios.get("/api/alarm");
@@ -301,7 +300,9 @@ var app = new Vue({
 
                 console.log(lng_1 +" "+lat_1 +" "+z_1+ " --"+ lng_2+" "+lat_2+" "+z_2);
 
-                this.createRoute(this.map, {lngLat: {lng: lng_1, lat: lat_1}, zLevel: z_1}, {lngLat: {lng: lng_2, lat: lat_2, zLevel: z_2}});
+                var lngLat = {lngLat: {lng: lng_1 , lat: lat_1}, zLevel: z_1};
+                var lngLat2 = {lngLat: {lng: lng_2, lat: lat_2}, zLevel: z_2};
+                this.createRoute(myMap, lngLat, lngLat2);
               }
             }
             this.previousRoute = this.currentRoute;
@@ -314,7 +315,7 @@ var app = new Vue({
       this.clearMarkers();
       await this.makeMap();
       setTimeout(() => this.loadData(this.map), 2000);
-      setTimeout(() => this.isAlarm(), 10000);
+      setTimeout(() => this.isAlarm(this.map), 6000);
     }
   },
 	mounted(){
